@@ -4,6 +4,10 @@
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
               pluginVST3Category="Sampler">
   <MAINGROUP id="R1OTZk" name="SimpleSampler">
+    <FILE id="F7WqlZ" name="BaseComponents.cpp" compile="1" resource="0"
+          file="Source/BaseComponents.cpp"/>
+    <FILE id="OBK6xg" name="BaseComponents.h" compile="0" resource="0"
+          file="Source/BaseComponents.h"/>
     <GROUP id="{622271DB-32BF-A083-733A-69DD03AD2366}" name="Source">
       <FILE id="wXYJUb" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
