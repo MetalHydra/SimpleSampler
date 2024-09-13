@@ -21,6 +21,9 @@ public:
     ~SimpleSamplerAudioProcessor() override;
 
     //==============================================================================
+
+    juce::MidiKeyboardState& getKeyboardState();
+
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
 
@@ -54,6 +57,7 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
 private:
+    juce::MidiKeyboardState keyboardState;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleSamplerAudioProcessor)
 };

@@ -28,6 +28,12 @@ SimpleSamplerAudioProcessor::~SimpleSamplerAudioProcessor()
 {
 }
 
+//returns the keyboardstate which is required for the initialisation of the keyboard
+juce::MidiKeyboardState& SimpleSamplerAudioProcessor::getKeyboardState()
+{
+    return keyboardState;
+}
+
 //==============================================================================
 const juce::String SimpleSamplerAudioProcessor::getName() const
 {
