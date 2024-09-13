@@ -10,6 +10,7 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "BaseComponents.h"
 
 //==============================================================================
 /**
@@ -27,7 +28,8 @@ public:
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
-    SimpleSamplerAudioProcessor& audioProcessor;
+    //SimpleSamplerAudioProcessor& audioProcessor;
+    CustomComponent mainComponents;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleSamplerAudioProcessorEditor)
 };
