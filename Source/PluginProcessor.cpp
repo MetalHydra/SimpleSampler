@@ -19,9 +19,10 @@ SimpleSamplerAudioProcessor::SimpleSamplerAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ),APVTS(*this, nullptr, "Parameters", createParameterLayout()) 
 #endif
 {
+    
 }
 
 SimpleSamplerAudioProcessor::~SimpleSamplerAudioProcessor()
@@ -32,6 +33,11 @@ SimpleSamplerAudioProcessor::~SimpleSamplerAudioProcessor()
 juce::MidiKeyboardState& SimpleSamplerAudioProcessor::getKeyboardState()
 {
     return keyboardState;
+}
+
+juce::AudioProcessorValueTreeState& SimpleSamplerAudioProcessor::getAPVTS()
+{
+    return APVTS;
 }
 
 //==============================================================================
@@ -187,6 +193,16 @@ void SimpleSamplerAudioProcessor::setStateInformation (const void* data, int siz
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+}
+
+juce::AudioProcessorValueTreeState::ParameterLayout SimpleSamplerAudioProcessor::createParameterLayout()
+{
+    std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("Attack", "Attack", 0.0f, 1.0f, 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("Decay", "Decay", 0.0f, 1.0f, 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("Sustain", "Sustain", 0.0f, 1.0f, 1.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("Release", "Release", 0.0f, 1.0f, 0.0f));
+    return { params.begin(), params.end() };
 }
 
 //==============================================================================

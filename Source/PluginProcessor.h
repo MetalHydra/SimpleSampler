@@ -23,6 +23,8 @@ public:
     //==============================================================================
 
     juce::MidiKeyboardState& getKeyboardState();
+    
+    juce::AudioProcessorValueTreeState& getAPVTS();
 
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
@@ -58,6 +60,8 @@ public:
 
 private:
     juce::MidiKeyboardState keyboardState;
+    juce::AudioProcessorValueTreeState APVTS;
+    juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleSamplerAudioProcessor)
 };
