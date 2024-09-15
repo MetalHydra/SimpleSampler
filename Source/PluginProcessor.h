@@ -7,13 +7,15 @@
 */
 
 #pragma once
-
 #include <JuceHeader.h>
+#include "SynthVoice.h"
+#include "SynthSound.h"
 
 //==============================================================================
 /**
 */
-class SimpleSamplerAudioProcessor  : public juce::AudioProcessor
+class SimpleSamplerAudioProcessor  : public juce::AudioProcessor,
+                                        public juce::MidiKeyboardState::Listener
 {
 public:
     //==============================================================================
@@ -23,9 +25,20 @@ public:
     //==============================================================================
 
     juce::MidiKeyboardState& getKeyboardState();
-    
-    juce::AudioProcessorValueTreeState& getAPVTS();
 
+    void handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity) override;
+    void handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity) override;
+
+    juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+
+    void loadAudioFile(juce::File file);
+
+    void changeSynthesizerSounds(juce::SynthesiserSound* newSound);
+    void processMidiBuffer(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages);
+
+    juce::AudioProcessorValueTreeState& getAPVTS() { return APVTS; }
+
+    //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
 
@@ -59,9 +72,10 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
 private:
+    juce::Synthesiser synth;
     juce::MidiKeyboardState keyboardState;
+    int numVoices = { 6 };
     juce::AudioProcessorValueTreeState APVTS;
-    juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleSamplerAudioProcessor)
 };
