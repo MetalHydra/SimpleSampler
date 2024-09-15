@@ -1,2 +1,5 @@
-**/Builds
-**/JuceLibraryCode
+**Source/JUCE
+**Source/cmake-build-debug
+**Source/.idea
+**Source/Acoustic_notes.wav
+.idea
