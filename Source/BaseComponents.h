@@ -28,7 +28,9 @@ private:
     SimpleSamplerAudioProcessor& audioProcessor;
     juce::MidiKeyboardComponent keyboardComponent;
     juce::Slider attackSlider, decaySlider, sustainSlider, releaseSlider;
-    juce::Label attackLabel, decayLabel, sustainLabel, releaseLabel;
+    juce::ToggleButton pmToggleButton;
+    juce::Label attackLabel, decayLabel, sustainLabel, releaseLabel, pmLabel;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attackAttachment, decayAttachment, sustainAttachment, releaseAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> pmAttachment;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CustomComponent)
 };

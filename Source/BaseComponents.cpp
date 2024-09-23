@@ -46,6 +46,12 @@ CustomComponent::CustomComponent(SimpleSamplerAudioProcessor& p) : audioProcesso
     releaseLabel.setJustificationType(juce::Justification::centredTop);
     releaseLabel.attachToComponent(&releaseSlider, false);
     releaseAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.getAPVTS(), "RELEASE", releaseSlider);
+
+    addAndMakeVisible(pmToggleButton);
+    pmLabel.setText("Palm muting", juce::dontSendNotification);
+    pmLabel.setJustificationType(juce::Justification::centredTop);
+    pmLabel.attachToComponent(&pmToggleButton, false);
+    pmAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.getAPVTS(), "PM", pmToggleButton);
 }
 
 CustomComponent::~CustomComponent()
@@ -61,8 +67,9 @@ void CustomComponent::resized()
 {
     keyboardComponent.setBoundsRelative(0.0f, 0.75f, 1.0f, 0.25);
 
-    attackSlider.setBoundsRelative(0.1f, 0.5f, 0.1f, 0.3f);
-    decaySlider.setBoundsRelative(0.3f, 0.5f, 0.1f, 0.3f);
-    sustainSlider.setBoundsRelative(0.5f, 0.5f, 0.1f, 0.3f);
-    releaseSlider.setBoundsRelative(0.7f, 0.5f, 0.1f, 0.3f);
+    attackSlider.setBoundsRelative(0.08f, 0.5f, 0.1f, 0.2f);
+    decaySlider.setBoundsRelative(0.16f, 0.5f, 0.1f, 0.2f);
+    sustainSlider.setBoundsRelative(0.24f, 0.5f, 0.1f, 0.2f);
+    releaseSlider.setBoundsRelative(0.32f, 0.5f, 0.1f, 0.2f);
+    pmToggleButton.setBoundsRelative(0.4f, 0.5f, 0.08f, 0.08f);
 }
