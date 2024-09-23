@@ -8,8 +8,7 @@
 
 #pragma once
 #include <JuceHeader.h>
-#include "SynthVoice.h"
-#include "SynthSound.h"
+#include "Instruments.h"
 
 //==============================================================================
 /**
@@ -31,11 +30,7 @@ public:
 
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
-    void loadAudioFile(juce::File file);
-
-    void changeSynthesizerSounds(juce::SynthesiserSound* newSound);
     void processMidiBuffer(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages);
-
     juce::AudioProcessorValueTreeState& getAPVTS() { return APVTS; }
 
     //==============================================================================
@@ -71,11 +66,14 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+
 private:
-    juce::Synthesiser synth;
     juce::MidiKeyboardState keyboardState;
-    int numVoices = { 6 };
+
     juce::AudioProcessorValueTreeState APVTS;
+    AcousticGuitar acousticGuitar = AcousticGuitar();
+    juce::OwnedArray<juce::Synthesiser>& currentSamplers = acousticGuitar.getSamplers();
+    //juce::OwnedArray<juce::Synthesiser> currentSamplers;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleSamplerAudioProcessor)
 };

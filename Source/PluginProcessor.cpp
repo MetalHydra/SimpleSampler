@@ -23,13 +23,6 @@ SimpleSamplerAudioProcessor::SimpleSamplerAudioProcessor()
 #endif
 {
     keyboardState.addListener(this);
-    synth.addSound(new SynthSound());
-
-    for (int i = 0; i < numVoices; i++)
-    {
-        synth.addVoice(new SynthVoice());
-    }
-    synth.clearSounds();
 }
 
 SimpleSamplerAudioProcessor::~SimpleSamplerAudioProcessor()
@@ -52,23 +45,18 @@ void SimpleSamplerAudioProcessor::handleNoteOff(MidiKeyboardState* source, int m
     DBG("note on released: " + std::to_string(midiNoteNumber));
 }
 
-
-
 juce::AudioProcessorValueTreeState::ParameterLayout SimpleSamplerAudioProcessor::createParameterLayout()
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
     params.push_back(std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("DECAY", "Decay", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", juce::NormalisableRange<float>(0.0f, 1.0f), 1.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterBool>("PM", "pm", false));
     return { params.begin(), params.end() };
 }
 
-void SimpleSamplerAudioProcessor::changeSynthesizerSounds(juce::SynthesiserSound* newSound)
-{
-    synth.clearSounds();
-    synth.addSound(newSound);
-}
+
 
 void SimpleSamplerAudioProcessor::processMidiBuffer(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
@@ -139,7 +127,13 @@ void SimpleSamplerAudioProcessor::changeProgramName (int index, const juce::Stri
 //==============================================================================
 void SimpleSamplerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    synth.setCurrentPlaybackSampleRate(sampleRate);
+    //instrumentManager.getNormalSynth().setCurrentPlaybackSampleRate(sampleRate);
+    //instrumentManager.getPalmMutedSynth().setCurrentPlaybackSampleRate(sampleRate);
+    for (auto& sampler : currentSamplers)
+    {
+        sampler->setCurrentPlaybackSampleRate(sampleRate);
+
+    }
 }
 
 void SimpleSamplerAudioProcessor::releaseResources()
@@ -174,22 +168,37 @@ void SimpleSamplerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
-
+    bool isPalmMuted = APVTS.getRawParameterValue("PM")->load();
+    DBG("is palm muted: " + std::to_string(isPalmMuted));
 
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    for(int i = 0; i < synth.getNumVoices(); i++)
+    /*for(int i = 0; i < synth.getNumVoices(); i++)
     {
         if (auto voice = dynamic_cast<SynthVoice*>(synth.getVoice(i)))
         {
             // do some adsr stuff
         }
-    }
+    }*/
     keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), true);
-
-    synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
-
+    //synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+    /*if (isPalmMuted)
+    {
+        instrumentManager.getPalmMutedSynth().renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+    }
+    else
+    {
+        instrumentManager.getNormalSynth().renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+    }*/
+    if (isPalmMuted)
+    {
+        currentSamplers[1]->renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+    }
+    else
+    {
+        currentSamplers[0]->renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+    }
 }
 
 //==============================================================================
