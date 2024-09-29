@@ -30,38 +30,6 @@ SimpleSamplerAudioProcessor::~SimpleSamplerAudioProcessor()
 }
 
 //returns the keyboardstate which is required for the initialisation of the keyboard
-juce::MidiKeyboardState& SimpleSamplerAudioProcessor::getKeyboardState()
-{
-    return keyboardState;
-}
-
-void SimpleSamplerAudioProcessor::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity)
-{
-    DBG("note on pressed: " + std::to_string(midiNoteNumber));
-}
-
-void SimpleSamplerAudioProcessor::handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity)
-{
-    DBG("note on released: " + std::to_string(midiNoteNumber));
-}
-
-juce::AudioProcessorValueTreeState::ParameterLayout SimpleSamplerAudioProcessor::createParameterLayout()
-{
-    std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("DECAY", "Decay", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
-    params.push_back(std::make_unique<juce::AudioParameterBool>("PM", "pm", false));
-    return { params.begin(), params.end() };
-}
-
-
-
-void SimpleSamplerAudioProcessor::processMidiBuffer(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
-{
-
-}
 
 //==============================================================================
 const juce::String SimpleSamplerAudioProcessor::getName() const
@@ -132,8 +100,8 @@ void SimpleSamplerAudioProcessor::prepareToPlay (double sampleRate, int samplesP
     for (auto& sampler : currentSamplers)
     {
         sampler->setCurrentPlaybackSampleRate(sampleRate);
-
     }
+
 }
 
 void SimpleSamplerAudioProcessor::releaseResources()
@@ -170,35 +138,20 @@ void SimpleSamplerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     auto totalNumOutputChannels = getTotalNumOutputChannels();
     bool isPalmMuted = APVTS.getRawParameterValue("PM")->load();
     DBG("is palm muted: " + std::to_string(isPalmMuted));
+    updateADSRParams(APVTS, adsrParams);
+    adsr.setParameters(adsrParams);
+
+    if (isPalmMuted)
+    {
+        currentSamplerIndex = 1;
+    }
 
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    /*for(int i = 0; i < synth.getNumVoices(); i++)
-    {
-        if (auto voice = dynamic_cast<SynthVoice*>(synth.getVoice(i)))
-        {
-            // do some adsr stuff
-        }
-    }*/
     keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), true);
-    //synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
-    /*if (isPalmMuted)
-    {
-        instrumentManager.getPalmMutedSynth().renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
-    }
-    else
-    {
-        instrumentManager.getNormalSynth().renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
-    }*/
-    if (isPalmMuted)
-    {
-        currentSamplers[1]->renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
-    }
-    else
-    {
-        currentSamplers[0]->renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
-    }
+    adsr.applyEnvelopeToBuffer(buffer, 0, buffer.getNumSamples());
+    currentSamplers[currentSamplerIndex]->renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 }
 
 //==============================================================================
@@ -223,10 +176,46 @@ void SimpleSamplerAudioProcessor::setStateInformation (const void* data, int siz
 
 }
 
-
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new SimpleSamplerAudioProcessor();
 }
+
+juce::MidiKeyboardState& SimpleSamplerAudioProcessor::getKeyboardState()
+{
+    return keyboardState;
+}
+
+void SimpleSamplerAudioProcessor::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity)
+{
+    //DBG("note on pressed: " + std::to_string(midiNoteNumber));
+}
+
+void SimpleSamplerAudioProcessor::handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity)
+{
+    //DBG("note on released: " + std::to_string(midiNoteNumber));
+}
+
+juce::AudioProcessorValueTreeState::ParameterLayout SimpleSamplerAudioProcessor::createParameterLayout()
+{
+    std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", juce::NormalisableRange<float>(0.0f, 2.0f), 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("DECAY", "Decay", juce::NormalisableRange<float>(0.0f, 2.0f), 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", juce::NormalisableRange<float>(0.0f, 2.0f), 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", juce::NormalisableRange<float>(0.0f, 2.0f), 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterBool>("PM", "pm", false));
+    return { params.begin(), params.end() };
+}
+
+void SimpleSamplerAudioProcessor::updateADSRParams(juce::AudioProcessorValueTreeState const& APVTS, juce::ADSR::Parameters& params)
+{
+    params.attack = APVTS.getRawParameterValue("ATTACK")->load();
+    params.decay = APVTS.getRawParameterValue("DECAY")->load();
+    params.sustain = APVTS.getRawParameterValue("SUSTAIN")->load();
+    params.release = APVTS.getRawParameterValue("RELEASE")->load();
+}
+
+
+

@@ -23,14 +23,6 @@ public:
 
     //==============================================================================
 
-    juce::MidiKeyboardState& getKeyboardState();
-
-    void handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity) override;
-    void handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity) override;
-
-    juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
-
-    void processMidiBuffer(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages);
     juce::AudioProcessorValueTreeState& getAPVTS() { return APVTS; }
 
     //==============================================================================
@@ -66,14 +58,27 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    //==============================================================================
+    juce::MidiKeyboardState& getKeyboardState();
 
+    void handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity) override;
+    void handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity) override;
+
+    juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+
+    void updateADSRParams(juce::AudioProcessorValueTreeState const& APVTS, juce::ADSR::Parameters& params);
+
+
+    //==============================================================================
 private:
     juce::MidiKeyboardState keyboardState;
-
     juce::AudioProcessorValueTreeState APVTS;
-    AcousticGuitar acousticGuitar = AcousticGuitar();
+    StringInstrument acousticGuitar = StringInstrument("AcousticGuitar", 4, {juce::File("/home/dennis/Sampler/SimpleSampler/Source/Sounds/AcousticSamples/"), juce::File("/home/dennis/Sampler/SimpleSampler/Source/Sounds/acousticSamplesPalmMuted/") }, 6, 20);
     juce::OwnedArray<juce::Synthesiser>& currentSamplers = acousticGuitar.getSamplers();
-    //juce::OwnedArray<juce::Synthesiser> currentSamplers;
+    juce::Synthesiser& currentSampler = acousticGuitar.getSampler(0);
+    juce::ADSR adsr;
+    juce::ADSR::Parameters adsrParams;
+    int currentSamplerIndex = 0;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleSamplerAudioProcessor)
 };
