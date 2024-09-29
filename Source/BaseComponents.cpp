@@ -60,7 +60,7 @@ CustomComponent::~CustomComponent()
 
 void CustomComponent::paint(juce::Graphics& g)
 {
-    g.fillAll(juce::Colours::black);
+    g.fillAll(juce::Colours::darkgrey);
 }
 
 void CustomComponent::resized()
