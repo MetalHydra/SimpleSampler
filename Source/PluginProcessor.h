@@ -14,7 +14,8 @@
 /**
 */
 class SimpleSamplerAudioProcessor  : public juce::AudioProcessor,
-                                        public juce::MidiKeyboardState::Listener
+                                        public juce::MidiKeyboardState::Listener,
+                                        public juce::ValueTree::Listener
 {
 public:
     //==============================================================================
@@ -66,19 +67,19 @@ public:
 
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
-    void updateADSRParams(juce::AudioProcessorValueTreeState const& APVTS, juce::ADSR::Parameters& params);
+    void updateADSRParams();
 
-
+    void valueTreePropertyChanged (ValueTree& treeWhosePropertyHasChanged, const Identifier& property ) override;
     //==============================================================================
 private:
+    std::atomic<bool> shouldUpdate = { false };
     juce::MidiKeyboardState keyboardState;
     juce::AudioProcessorValueTreeState APVTS;
     StringInstrument acousticGuitar = StringInstrument("AcousticGuitar", 4, {juce::File("/home/dennis/Sampler/SimpleSampler/Source/Sounds/AcousticSamples/"), juce::File("/home/dennis/Sampler/SimpleSampler/Source/Sounds/acousticSamplesPalmMuted/") }, 6, 20);
     juce::OwnedArray<juce::Synthesiser>& currentSamplers = acousticGuitar.getSamplers();
-    juce::Synthesiser& currentSampler = acousticGuitar.getSampler(0);
-    juce::ADSR adsr;
     juce::ADSR::Parameters adsrParams;
     int currentSamplerIndex = 0;
+    double gainValue = 0.0;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleSamplerAudioProcessor)
 };

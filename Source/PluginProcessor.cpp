@@ -23,6 +23,7 @@ SimpleSamplerAudioProcessor::SimpleSamplerAudioProcessor()
 #endif
 {
     keyboardState.addListener(this);
+    APVTS.state.addListener(this);
 }
 
 SimpleSamplerAudioProcessor::~SimpleSamplerAudioProcessor()
@@ -101,7 +102,11 @@ void SimpleSamplerAudioProcessor::prepareToPlay (double sampleRate, int samplesP
     {
         sampler->setCurrentPlaybackSampleRate(sampleRate);
     }
-
+    if (shouldUpdate)
+    {
+        updateADSRParams();
+        shouldUpdate = false;
+    }
 }
 
 void SimpleSamplerAudioProcessor::releaseResources()
@@ -137,20 +142,25 @@ void SimpleSamplerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
     bool isPalmMuted = APVTS.getRawParameterValue("PM")->load();
-    DBG("is palm muted: " + std::to_string(isPalmMuted));
-    updateADSRParams(APVTS, adsrParams);
-    adsr.setParameters(adsrParams);
+    //DBG("is palm muted: " + std::to_string(isPalmMuted));
 
     if (isPalmMuted)
     {
         currentSamplerIndex = 1;
     }
 
+    if (shouldUpdate)
+    {
+        updateADSRParams();
+        shouldUpdate = false;
+    }
+
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
     keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), true);
-    adsr.applyEnvelopeToBuffer(buffer, 0, buffer.getNumSamples());
+
+
     currentSamplers[currentSamplerIndex]->renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 }
 
@@ -201,20 +211,35 @@ void SimpleSamplerAudioProcessor::handleNoteOff(MidiKeyboardState* source, int m
 juce::AudioProcessorValueTreeState::ParameterLayout SimpleSamplerAudioProcessor::createParameterLayout()
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", juce::NormalisableRange<float>(0.0f, 2.0f), 0.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("DECAY", "Decay", juce::NormalisableRange<float>(0.0f, 2.0f), 0.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", juce::NormalisableRange<float>(0.0f, 2.0f), 0.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", juce::NormalisableRange<float>(0.0f, 2.0f), 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("DECAY", "Decay", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", juce::NormalisableRange<float>(0.0f, 1.0f), 1.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterBool>("PM", "pm", false));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("GAIN", "Gain", juce::NormalisableRange<float>(-48.0f, 0.0f), 0.0f));
     return { params.begin(), params.end() };
 }
 
-void SimpleSamplerAudioProcessor::updateADSRParams(juce::AudioProcessorValueTreeState const& APVTS, juce::ADSR::Parameters& params)
+void SimpleSamplerAudioProcessor::updateADSRParams()
 {
-    params.attack = APVTS.getRawParameterValue("ATTACK")->load();
-    params.decay = APVTS.getRawParameterValue("DECAY")->load();
-    params.sustain = APVTS.getRawParameterValue("SUSTAIN")->load();
-    params.release = APVTS.getRawParameterValue("RELEASE")->load();
+    adsrParams.attack = APVTS.getRawParameterValue("ATTACK")->load();
+    adsrParams.decay = APVTS.getRawParameterValue("DECAY")->load();
+    adsrParams.sustain = APVTS.getRawParameterValue("SUSTAIN")->load();
+    adsrParams.release = APVTS.getRawParameterValue("RELEASE")->load();
+
+    for (int i = 0; i < currentSamplers[currentSamplerIndex]->getNumSounds(); ++i)
+    {
+        if (auto sound = dynamic_cast<juce::SamplerSound*>(currentSamplers[currentSamplerIndex]->getSound(i).get()))
+        {
+            sound->setEnvelopeParameters(adsrParams);
+        }
+    }
+    DBG("updated adsr params");
+}
+
+void SimpleSamplerAudioProcessor::valueTreePropertyChanged(ValueTree &treeWhosePropertyHasChanged, const Identifier &property)
+{
+    shouldUpdate = true;
 }
 
 
