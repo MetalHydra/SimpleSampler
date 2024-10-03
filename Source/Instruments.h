@@ -32,6 +32,8 @@ public:
 
     juce::OwnedArray<juce::Synthesiser>& getSamplers() { return samplers; }
 
+    void updateADSRParams(juce::ADSR::Parameters &params);
+
 private:
     std::string name;
     int numVoices;
@@ -39,6 +41,7 @@ private:
     int requiredSamplers;
     juce::OwnedArray<juce::Synthesiser> samplers;
     juce::AudioFormatManager audioFormatManager;
+    juce::ADSR adsr;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Instruments)
 };

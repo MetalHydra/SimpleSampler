@@ -17,7 +17,7 @@ void Instruments::initializeSamplers()
         samplers.add(new juce::Synthesiser());
         for (int j = 0; j < getNumVoices(); j++)
         {
-            samplers[i]->addVoice(new juce::SamplerVoice());
+            samplers[i]->addVoice(new juce::SamplerSound());
         }
 
         for (juce::DirectoryEntry entry : juce::RangedDirectoryIterator (pathToSamples[i], false))
