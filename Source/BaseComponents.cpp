@@ -52,6 +52,14 @@ CustomComponent::CustomComponent(SimpleSamplerAudioProcessor& p) : audioProcesso
     pmLabel.setJustificationType(juce::Justification::centredTop);
     pmLabel.attachToComponent(&pmToggleButton, false);
     pmAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.getAPVTS(), "PM", pmToggleButton);
+
+    gainSlider.setSliderStyle(juce::Slider::SliderStyle::Rotary);
+    gainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 40,20);
+    addAndMakeVisible(gainSlider);
+    gainLabel.setText("Gain", juce::dontSendNotification);
+    gainLabel.setJustificationType(juce::Justification::centredTop);
+    gainLabel.attachToComponent(&gainSlider, false);
+    gainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.getAPVTS(), "GAIN", gainSlider);
 }
 
 CustomComponent::~CustomComponent()
@@ -72,4 +80,5 @@ void CustomComponent::resized()
     sustainSlider.setBoundsRelative(0.24f, 0.5f, 0.1f, 0.2f);
     releaseSlider.setBoundsRelative(0.32f, 0.5f, 0.1f, 0.2f);
     pmToggleButton.setBoundsRelative(0.4f, 0.5f, 0.08f, 0.08f);
+    gainSlider.setBoundsRelative(0.48f, 0.5f, 0.1f, 0.2f);
 }
