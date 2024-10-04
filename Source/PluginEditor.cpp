@@ -27,6 +27,9 @@ SimpleSamplerAudioProcessorEditor::~SimpleSamplerAudioProcessorEditor()
 void SimpleSamplerAudioProcessorEditor::paint (juce::Graphics& g)
 {
     g.fillAll (juce::Colours::darkgrey);
+    g.setColour (juce::Colours::orange);
+
+    g.fillRect (10, 10, 40, 40);
 }
 
 void SimpleSamplerAudioProcessorEditor::resized()

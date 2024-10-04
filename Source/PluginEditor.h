@@ -11,6 +11,7 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "BaseComponents.h"
+#include "InstrumentUi.h"
 
 
 //==============================================================================
@@ -31,6 +32,8 @@ private:
     // access the processor object that created it.
     //SimpleSamplerAudioProcessor& audioProcessor;
     CustomComponent mainComponents;
+    InstrumentUi instrumentUi;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleSamplerAudioProcessorEditor)
 };
