@@ -17,7 +17,7 @@ void Instruments::initializeSamplers()
         samplers.add(new juce::Synthesiser());
         for (int j = 0; j < getNumVoices(); j++)
         {
-            samplers[i]->addVoice(new juce::SamplerSound());
+            samplers[i]->addVoice(new juce::SamplerVoice());
         }
 
         for (juce::DirectoryEntry entry : juce::RangedDirectoryIterator (pathToSamples[i], false))
@@ -29,6 +29,8 @@ void Instruments::initializeSamplers()
             auto midiNumber = file.getFileNameWithoutExtension().getIntValue();
             DBG("midi number: " + std::to_string(midiNumber));
             samplers[i]->addSound(new juce::SamplerSound(file.getFileNameWithoutExtension(), *reader, BigInteger().setBit(midiNumber,true), midiNumber, 0.2, 0.2, 4.0));
+            //samplers[i]->addSound(new MySamplerSound(file.getFileNameWithoutExtension(), *reader, BigInteger().setBit(midiNumber,true), midiNumber, 0.2, 0.2, 4.0));
+
             delete reader;
         }
     }
