@@ -158,10 +158,21 @@ void SimpleSamplerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
+
+
     keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), true);
 
 
     currentSamplers[currentSamplerIndex]->renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+
+    for (int i = 0; i < totalNumInputChannels; ++i)
+    {
+        auto *writer = buffer.getWritePointer(i);
+        for (int j = 0; j < buffer.getNumSamples(); ++j)
+        {
+            writer[j] = 0.0f;
+        }
+    }
 }
 
 //==============================================================================

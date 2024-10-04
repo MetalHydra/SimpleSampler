@@ -75,7 +75,7 @@ private:
     std::atomic<bool> shouldUpdate = { false };
     juce::MidiKeyboardState keyboardState;
     juce::AudioProcessorValueTreeState APVTS;
-    StringInstrument acousticGuitar = StringInstrument("AcousticGuitar", 4, {juce::File("/home/dennis/Sampler/SimpleSampler/Source/Sounds/AcousticSamples/"), juce::File("/home/dennis/Sampler/SimpleSampler/Source/Sounds/acousticSamplesPalmMuted/") }, 6, 20);
+    StringInstrument acousticGuitar = StringInstrument("AcousticGuitar", 4, {juce::File("~/SimpleSampler/Source/Sounds/AcousticSamples/"), juce::File("~/SimpleSampler/Source/Sounds/AcousticSamplesPalmMuted/") }, 6, 20);
     juce::OwnedArray<juce::Synthesiser>& currentSamplers = acousticGuitar.getSamplers();
     juce::ADSR::Parameters adsrParams;
     int currentSamplerIndex = 0;
