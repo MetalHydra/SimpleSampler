@@ -9,6 +9,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "Instruments.h"
+#include "Params/samplerParams.h"
 
 //==============================================================================
 /**
@@ -75,10 +76,11 @@ private:
     std::atomic<bool> shouldUpdate = { false };
     juce::MidiKeyboardState keyboardState;
     juce::AudioProcessorValueTreeState APVTS;
-    StringInstrument acousticGuitar = StringInstrument("AcousticGuitar", 4, {juce::File("~/SimpleSampler/Source/Sounds/AcousticSamples/"), juce::File("~/SimpleSampler/Source/Sounds/AcousticSamplesPalmMuted/") }, 6, 20);
+    StringInstrument acousticGuitar = StringInstrument("AcousticGuitar", 4, {juce::File("~/Sampler/SimpleSampler/Source/Sounds/AcousticSamples/"), juce::File("~/Sampler/SimpleSampler/Source/Sounds/AcousticSamplesPalmMuted/") }, 6, 20);
     juce::OwnedArray<juce::Synthesiser>& currentSamplers = acousticGuitar.getSamplers();
     juce::ADSR::Parameters adsrParams;
     int currentSamplerIndex = 0;
+    SamplerParams samplerParams;
     double gainValue = 0.0;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleSamplerAudioProcessor)

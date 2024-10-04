@@ -227,7 +227,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleSamplerAudioProcessor:
     params.push_back(std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", juce::NormalisableRange<float>(0.0f, 1.0f), 1.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterBool>("PM", "pm", false));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("GAIN", "Gain", juce::NormalisableRange<float>(-48.0f, 0.0f), 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("GAIN", "Gain", juce::NormalisableRange<float>(-48.0f, 0.0f), -1.0f));
     return { params.begin(), params.end() };
 }
 
@@ -237,12 +237,15 @@ void SimpleSamplerAudioProcessor::updateADSRParams()
     adsrParams.decay = APVTS.getRawParameterValue("DECAY")->load();
     adsrParams.sustain = APVTS.getRawParameterValue("SUSTAIN")->load();
     adsrParams.release = APVTS.getRawParameterValue("RELEASE")->load();
+    samplerParams.setGain(APVTS.getRawParameterValue("GAIN")->load());
+
 
     for (int i = 0; i < currentSamplers[currentSamplerIndex]->getNumSounds(); ++i)
     {
-        if (auto sound = dynamic_cast<juce::SamplerSound*>(currentSamplers[currentSamplerIndex]->getSound(i).get()))
+        if (auto sound = dynamic_cast<MySamplerSound*>(currentSamplers[currentSamplerIndex]->getSound(i).get()))
         {
             sound->setEnvelopeParameters(adsrParams);
+            sound->setParameters(samplerParams);
         }
     }
     DBG("updated adsr params");
