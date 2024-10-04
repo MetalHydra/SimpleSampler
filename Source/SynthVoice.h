@@ -1,10 +1,9 @@
-
-#pragma once
 #include <JuceHeader.h>
+#include "Params/samplerParams.h"
 
-class  MySamplerSound    : public juce::SynthesiserSound
+class  MySamplerSound    : public SynthesiserSound
 {
-    public:
+public:
     //==============================================================================
     /** Creates a sampled sound from an audio reader.
 
@@ -24,9 +23,9 @@ class  MySamplerSound    : public juce::SynthesiserSound
         @param maxSampleLengthSeconds   a maximum length of audio to read from the audio
                                         source, in seconds
     */
-    MySamplerSound (const String& name,
-                  AudioFormatReader& source,
-                  const BigInteger& midiNotes,
+    MySamplerSound (const juce::String& name,
+                  juce::AudioFormatReader& source,
+                  const juce::BigInteger& midiNotes,
                   int midiNoteForNormalPitch,
                   double attackTimeSecs,
                   double releaseTimeSecs,
@@ -36,80 +35,67 @@ class  MySamplerSound    : public juce::SynthesiserSound
     ~MySamplerSound() override;
 
     //==============================================================================
-    /** Returns the sample's name */
-    const String& getName() const noexcept                  { return name; }
+    [[nodiscard]]
+    const juce::String& getName() const noexcept                  { return name; }
 
-    /** Returns the audio sample data.
-        This could return nullptr if there was a problem loading the data.
-    */
-    AudioBuffer<float>* getAudioData() const noexcept       { return data.get(); }
+    [[nodiscard]]
+    juce::AudioBuffer<float>* getAudioData() const noexcept       { return data.get(); }
 
     //==============================================================================
-    /** Changes the parameters of the ADSR envelope which will be applied to the sample. */
-    void setEnvelopeParameters (ADSR::Parameters parametersToUse)    { params = parametersToUse; }
+    void setEnvelopeParameters (juce::ADSR::Parameters parametersToUse)    { params = parametersToUse; }
 
+    void setParameters (const SamplerParams& samplerParamsToUse) { samplerParams = samplerParamsToUse; }
     //==============================================================================
     bool appliesToNote (int midiNoteNumber) override;
     bool appliesToChannel (int midiChannel) override;
 
-    private:
+private:
     //==============================================================================
     friend class MySamplerVoice;
 
     String name;
-    std::unique_ptr<AudioBuffer<float>> data;
+    std::unique_ptr<juce::AudioBuffer<float>> data;
     double sourceSampleRate;
     BigInteger midiNotes;
     int length = 0, midiRootNote = 0;
 
     ADSR::Parameters params;
+    SamplerParams samplerParams;
 
-    JUCE_LEAK_DETECTOR (SamplerSound)
+
+    JUCE_LEAK_DETECTOR (MySamplerSound)
 };
 
-
-//==============================================================================
-/**
-    A subclass of SynthesiserVoice that can play a SamplerSound.
-
-    To use it, create a Synthesiser, add some SamplerVoice objects to it, then
-    give it some SampledSound objects to play.
-
-    @see SamplerSound, Synthesiser, SynthesiserVoice
-
-    @tags{Audio}
-*/
 class MySamplerVoice    : public juce::SynthesiserVoice
 {
 public:
-//==============================================================================
-/** Creates a SamplerVoice. */
+    //==============================================================================
+    /** Creates a SamplerVoice. */
     MySamplerVoice();
 
-/** Destructor. */
-~MySamplerVoice() override;
+    /** Destructor. */
+    ~MySamplerVoice() override;
 
-//==============================================================================
-bool canPlaySound (SynthesiserSound*) override;
+    //==============================================================================
+    bool canPlaySound (juce::SynthesiserSound*) override;
 
-void startNote (int midiNoteNumber, float velocity, SynthesiserSound*, int pitchWheel) override;
-void stopNote (float velocity, bool allowTailOff) override;
+    void startNote (int midiNoteNumber, float velocity, juce::SynthesiserSound*, int pitchWheel) override;
+    void stopNote (float velocity, bool allowTailOff) override;
 
-void pitchWheelMoved (int newValue) override;
-void controllerMoved (int controllerNumber, int newValue) override;
+    void pitchWheelMoved (int newValue) override;
+    void controllerMoved (int controllerNumber, int newValue) override;
 
-void renderNextBlock (AudioBuffer<float>&, int startSample, int numSamples) override;
-using SynthesiserVoice::renderNextBlock;
+    void renderNextBlock (juce::AudioBuffer<float>&, int startSample, int numSamples) override;
+    //using juce::SynthesiserVoice::renderNextBlock;
 
 private:
-//==============================================================================
-double pitchRatio = 0;
-double sourceSamplePosition = 0;
-float lgain = 2.5, rgain = 2.5;
+    //==============================================================================
+    double pitchRatio = 0;
+    double sourceSamplePosition = 0;
+    float lgain = 0.0, rgain = 0.0;
+    ADSR adsr;
 
-ADSR adsr;
 
-JUCE_LEAK_DETECTOR (SamplerVoice)
+    JUCE_LEAK_DETECTOR (MySamplerVoice)
 };
 
- // namespace juce
