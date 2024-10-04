@@ -69,16 +69,17 @@ CustomComponent::~CustomComponent()
 void CustomComponent::paint(juce::Graphics& g)
 {
     g.fillAll(juce::Colours::darkgrey);
+    instrumentUI.paint(g);
 }
 
 void CustomComponent::resized()
 {
     keyboardComponent.setBoundsRelative(0.0f, 0.75f, 1.0f, 0.25);
 
-    attackSlider.setBoundsRelative(0.08f, 0.5f, 0.1f, 0.2f);
-    decaySlider.setBoundsRelative(0.16f, 0.5f, 0.1f, 0.2f);
-    sustainSlider.setBoundsRelative(0.24f, 0.5f, 0.1f, 0.2f);
-    releaseSlider.setBoundsRelative(0.32f, 0.5f, 0.1f, 0.2f);
-    pmToggleButton.setBoundsRelative(0.4f, 0.5f, 0.08f, 0.08f);
-    gainSlider.setBoundsRelative(0.48f, 0.5f, 0.1f, 0.2f);
+    attackSlider.setBoundsRelative(0.04f, 0.5f, 0.1f, 0.2f);
+    decaySlider.setBoundsRelative(0.12f, 0.5f, 0.1f, 0.2f);
+    sustainSlider.setBoundsRelative(0.20f, 0.5f, 0.1f, 0.2f);
+    releaseSlider.setBoundsRelative(0.28f, 0.5f, 0.1f, 0.2f);
+    pmToggleButton.setBoundsRelative(0.5f, 0.5f, 0.08f, 0.08f);
+    gainSlider.setBoundsRelative(0.36f, 0.5f, 0.1f, 0.2f);
 }

@@ -13,6 +13,7 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "InstrumentUi.h"
 
 
 class CustomComponent : public juce::Component
@@ -27,6 +28,7 @@ public:
 private:    
     SimpleSamplerAudioProcessor& audioProcessor;
     juce::MidiKeyboardComponent keyboardComponent;
+    InstrumentUi instrumentUI;
     juce::Slider attackSlider, decaySlider, sustainSlider, releaseSlider, gainSlider;
     juce::ToggleButton pmToggleButton;
     juce::Label attackLabel, decayLabel, sustainLabel, releaseLabel, pmLabel, gainLabel;
