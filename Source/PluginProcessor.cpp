@@ -242,7 +242,7 @@ void SimpleSamplerAudioProcessor::updateADSRParams()
 
     for (int i = 0; i < currentSamplers[currentSamplerIndex]->getNumSounds(); ++i)
     {
-        if (auto sound = dynamic_cast<MySamplerSound*>(currentSamplers[currentSamplerIndex]->getSound(i).get()))
+        if (auto sound = dynamic_cast<nSamplerSound::SamplerSound*>(currentSamplers[currentSamplerIndex]->getSound(i).get()))
         {
             sound->setEnvelopeParameters(adsrParams);
             sound->setParameters(samplerParams);
