@@ -10,6 +10,7 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "UI/UIComponents.h"
+
 #include "UI/InstrumentUi.h"
 
 //==============================================================================
@@ -28,7 +29,6 @@ public:
 private:
     //SimpleSamplerAudioProcessor& audioProcessor;
     UIComponents mainComponents;
-    InstrumentUi instrumentUi;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleSamplerAudioProcessorEditor)
 };
