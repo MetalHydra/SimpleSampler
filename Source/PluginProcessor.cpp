@@ -141,13 +141,6 @@ void SimpleSamplerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
-    bool isPalmMuted = APVTS.getRawParameterValue("PM")->load();
-    //DBG("is palm muted: " + std::to_string(isPalmMuted));
-
-    if (isPalmMuted)
-    {
-        currentSamplerIndex = 1;
-    }
 
     if (shouldUpdate)
     {
@@ -158,10 +151,7 @@ void SimpleSamplerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-
-
     keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), true);
-
 
     currentSamplers[currentSamplerIndex]->renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 
@@ -226,8 +216,15 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleSamplerAudioProcessor:
     params.push_back(std::make_unique<juce::AudioParameterFloat>("DECAY", "Decay", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", juce::NormalisableRange<float>(0.0f, 1.0f), 1.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
-    params.push_back(std::make_unique<juce::AudioParameterBool>("PM", "pm", false));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("GAIN", "Gain", juce::NormalisableRange<float>(-48.0f, 0.0f), -1.0f));
+
+    //applying Reverb parameters
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("ROOM", "Room", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("DAMP", "Damp", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("WET", "Wet", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("DRY", "Dry", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("WIDTH", "Width", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("FREEZE", "Freeze", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
     return { params.begin(), params.end() };
 }
 
@@ -239,6 +236,14 @@ void SimpleSamplerAudioProcessor::updateADSRParams()
     adsrParams.release = APVTS.getRawParameterValue("RELEASE")->load();
     samplerParams.setGain(APVTS.getRawParameterValue("GAIN")->load());
 
+    //applying Reverb parameters
+    reverbParams.roomSize = APVTS.getRawParameterValue("ROOM")->load();
+    reverbParams.damping = APVTS.getRawParameterValue("DAMP")->load();
+    reverbParams.wetLevel = APVTS.getRawParameterValue("WET")->load();
+    reverbParams.dryLevel = APVTS.getRawParameterValue("DRY")->load();
+    reverbParams.width = APVTS.getRawParameterValue("WIDTH")->load();
+    reverbParams.freezeMode = APVTS.getRawParameterValue("FREEZE")->load();
+
 
     for (int i = 0; i < currentSamplers[currentSamplerIndex]->getNumSounds(); ++i)
     {
@@ -246,6 +251,7 @@ void SimpleSamplerAudioProcessor::updateADSRParams()
         {
             sound->setEnvelopeParameters(adsrParams);
             sound->setParameters(samplerParams);
+            sound->setReverbParameters(reverbParams);
         }
     }
     DBG("updated adsr params");
