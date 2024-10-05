@@ -67,6 +67,8 @@ void nSamplerSound::SamplerVoice::startNote (int midiNoteNumber, float velocity,
 
         adsr.setSampleRate (sound->sourceSampleRate);
         adsr.setParameters (sound->params);
+        reverb.setSampleRate(sound->sourceSampleRate);
+        reverb.setParameters(sound->reverbParams);
 
         adsr.noteOn();
     }
@@ -86,6 +88,7 @@ void nSamplerSound::SamplerVoice::stopNote (float /*velocity*/, bool allowTailOf
     {
         clearCurrentNote();
         adsr.reset();
+        reverb.reset();
     }
 }
 
@@ -138,6 +141,16 @@ void nSamplerSound::SamplerVoice::renderNextBlock (juce::AudioBuffer<float>& out
                 stopNote (0.0f, false);
                 break;
             }
+        }
+        //DBG("VALUE = 0");
+        if (outR == nullptr)
+        {
+            reverb.processMono(outL, numSamples);
+        }
+        else
+        {
+            reverb.processStereo(outL, outR, numSamples);
+            DBG("process Stereo reverb " + std::to_string(reverb.getParameters().roomSize) + " " + std::to_string(reverb.getParameters().wetLevel));
         }
     }
 }

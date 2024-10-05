@@ -32,6 +32,10 @@ namespace nSamplerSound {
 
         void setParameters(const SamplerParams &samplerParamsToUse) { samplerParams = samplerParamsToUse; }
 
+        void setReverbParameters(const juce::Reverb::Parameters &reverbParamsToUse) { reverbParams = reverbParamsToUse; }
+
+        juce::Reverb::Parameters getReverbParameters() { return reverbParams; }
+
         //==============================================================================
         bool appliesToNote(int midiNoteNumber) override;
 
@@ -47,9 +51,9 @@ namespace nSamplerSound {
         BigInteger midiNotes;
         int length = 0, midiRootNote = 0;
 
-        ADSR::Parameters params;
+        juce::ADSR::Parameters params;
         SamplerParams samplerParams;
-
+        juce::Reverb::Parameters reverbParams;
 
         JUCE_LEAK_DETECTOR (SamplerSound)
     };
@@ -82,7 +86,8 @@ namespace nSamplerSound {
         double pitchRatio = 0;
         double sourceSamplePosition = 0;
         float lgain = 0.0, rgain = 0.0;
-        ADSR adsr;
+        juce::ADSR adsr;
+        juce::Reverb reverb;
 
 
         JUCE_LEAK_DETECTOR (SamplerVoice)
