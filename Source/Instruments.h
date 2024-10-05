@@ -1,6 +1,6 @@
 #pragma once
 #include <JuceHeader.h>
-#include "SynthVoice.h"
+#include "Sampler/Sampler.h"
 
 enum StringInstrumentPlayStyle
 {
