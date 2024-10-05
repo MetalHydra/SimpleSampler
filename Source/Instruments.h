@@ -11,15 +11,12 @@ enum StringInstrumentPlayStyle
 class Instruments
 {
 public:
-    Instruments( std::string name,  int numVoices,  juce::Array<juce::File> pathToSamples);
+    Instruments( std::string name,  int numVoices);
 
     ~Instruments() = default;
 
     [[nodiscard]]
     std::string getName() const { return name; }
-
-    [[nodiscard]]
-    int getRequiredSamplers() const { return requiredSamplers; }
 
     [[nodiscard]]
     int getNumVoices() const { return numVoices; }
@@ -36,10 +33,13 @@ public:
     void updateADSRParams(juce::ADSR::Parameters &params);
 
 private:
+
+    juce::Array<juce::File> pathToSampleFolders = { juce::File("~/Sampler/SimpleSampler/Source/Sounds/AcousticSamples/"),
+                                                    juce::File("~/Sampler/SimpleSampler/Source/Sounds/AcousticSamplesPalmMuted/")};
+
     std::string name;
     int numVoices;
-    juce::Array<juce::File> pathToSamples;
-    int requiredSamplers;
+
     juce::OwnedArray<juce::Synthesiser> samplers;
     juce::AudioFormatManager audioFormatManager;
     juce::ADSR adsr;
@@ -47,23 +47,6 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Instruments)
 };
 
-class StringInstrument : public Instruments
-{
-public:
-    StringInstrument(std::string name, int numVoices, juce::Array<juce::File> pathToSamples, int numStrings, int numFrets);
-    static bool isStringInstrument() { return true; }
-    static bool isDrumInstrument() { return false; }
 
-    [[nodiscard]]
-    int getNumStrings() const { return numStrings; }
-
-    [[nodiscard]]
-    int getNumFrets() const { return numFrets; }
-
-private:
-    int numStrings;
-    int numFrets;
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(StringInstrument)
-};
 
 
