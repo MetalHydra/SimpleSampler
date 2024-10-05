@@ -9,18 +9,14 @@
 */
 
 #pragma once
-
-
 #include <JuceHeader.h>
 #include "../PluginProcessor.h"
-#include "InstrumentUi.h"
-
 
 class UIComponents : public juce::Component
 {
 public:
     UIComponents(SimpleSamplerAudioProcessor& p);
-    ~UIComponents();
+    ~UIComponents() override;
 
     void paint(juce::Graphics&) override;
     void resized() override;
@@ -28,11 +24,13 @@ public:
 private:    
     SimpleSamplerAudioProcessor& audioProcessor;
     juce::MidiKeyboardComponent keyboardComponent;
-    InstrumentUi instrumentUI;
     juce::Slider attackSlider, decaySlider, sustainSlider, releaseSlider, gainSlider;
-    juce::ToggleButton pmToggleButton;
-    juce::Label attackLabel, decayLabel, sustainLabel, releaseLabel, pmLabel, gainLabel;
+    juce::Label attackLabel, decayLabel, sustainLabel, releaseLabel, gainLabel;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attackAttachment, decayAttachment, sustainAttachment, releaseAttachment, gainAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> pmAttachment;
+
+    juce::Slider roomSlider, dampSlider, wetSlider, drySlider, widthSlider, freezeSlider;
+    juce::Label roomLabel, dampLabel, wetLabel, dryLabel, widthLabel, freezeLabel;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> roomAttachment, dampAttachment, wetAttachment, dryAttachment, widthAttachment, freezeAttachment;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(UIComponents)
 };
