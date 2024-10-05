@@ -1,7 +1,7 @@
-#include "SynthVoice.h"
+#include "Sampler.h"
 
-
-MySamplerSound::MySamplerSound (const juce::String& soundName,
+using namespace nSamplerSound;
+nSamplerSound::SamplerSound::SamplerSound (const juce::String& soundName,
                             juce::AudioFormatReader& source,
                             const juce::BigInteger& notes,
                             int midiNoteForNormalPitch,
@@ -27,16 +27,18 @@ MySamplerSound::MySamplerSound (const juce::String& soundName,
     }
 }
 
-MySamplerSound::~MySamplerSound()
+
+
+nSamplerSound::SamplerSound::~SamplerSound()
 {
 }
 
-bool MySamplerSound::appliesToNote (int midiNoteNumber)
+bool nSamplerSound::SamplerSound::appliesToNote (int midiNoteNumber)
 {
     return midiNotes[midiNoteNumber];
 }
 
-bool MySamplerSound::appliesToChannel (int /*midiChannel*/)
+bool nSamplerSound::SamplerSound::appliesToChannel (int /*midiChannel*/)
 {
     return true;
 }
@@ -44,17 +46,17 @@ bool MySamplerSound::appliesToChannel (int /*midiChannel*/)
 
 
 //==============================================================================
-MySamplerVoice::MySamplerVoice() {}
-MySamplerVoice::~MySamplerVoice() {}
+nSamplerSound::SamplerVoice::SamplerVoice() {}
+nSamplerSound::SamplerVoice::~SamplerVoice() {}
 
-bool MySamplerVoice::canPlaySound (juce::SynthesiserSound* sound)
+bool nSamplerSound::SamplerVoice::canPlaySound (juce::SynthesiserSound* sound)
 {
-    return dynamic_cast<const MySamplerSound*> (sound) != nullptr;
+    return dynamic_cast<const SamplerSound*> (sound) != nullptr;
 }
 
-void MySamplerVoice::startNote (int midiNoteNumber, float velocity, juce::SynthesiserSound* s, int /*currentPitchWheelPosition*/)
+void nSamplerSound::SamplerVoice::startNote (int midiNoteNumber, float velocity, juce::SynthesiserSound* s, int /*currentPitchWheelPosition*/)
 {
-    if (auto* sound = dynamic_cast<const MySamplerSound*> (s))
+    if (auto* sound = dynamic_cast<const SamplerSound*> (s))
     {
         pitchRatio = std::pow (2.0, (midiNoteNumber - sound->midiRootNote) / 12.0)
                         * sound->sourceSampleRate / getSampleRate();
@@ -74,7 +76,7 @@ void MySamplerVoice::startNote (int midiNoteNumber, float velocity, juce::Synthe
     }
 }
 
-void MySamplerVoice::stopNote (float /*velocity*/, bool allowTailOff)
+void nSamplerSound::SamplerVoice::stopNote (float /*velocity*/, bool allowTailOff)
 {
     if (allowTailOff)
     {
@@ -87,13 +89,13 @@ void MySamplerVoice::stopNote (float /*velocity*/, bool allowTailOff)
     }
 }
 
-void MySamplerVoice::pitchWheelMoved (int /*newValue*/) {}
-void MySamplerVoice::controllerMoved (int /*controllerNumber*/, int /*newValue*/) {}
+void nSamplerSound::SamplerVoice::pitchWheelMoved (int /*newValue*/) {}
+void nSamplerSound::SamplerVoice::controllerMoved (int /*controllerNumber*/, int /*newValue*/) {}
 
 //==============================================================================
-void MySamplerVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
+void nSamplerSound::SamplerVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
-    if (auto* playingSound = static_cast<MySamplerSound*> (getCurrentlyPlayingSound().get()))
+    if (auto* playingSound = static_cast<SamplerSound*> (getCurrentlyPlayingSound().get()))
     {
         auto& data = *playingSound->data;
         const float* const inL = data.getReadPointer (0);
