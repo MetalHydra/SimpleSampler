@@ -11,6 +11,7 @@
 #include "Instruments.h"
 #include "Params/samplerParams.h"
 
+
 //==============================================================================
 /**
 */
@@ -70,18 +71,23 @@ public:
 
     void updateADSRParams();
 
+    void updateSamplerIndex();
+
     void valueTreePropertyChanged (ValueTree& treeWhosePropertyHasChanged, const Identifier& property ) override;
     //==============================================================================
 private:
+    const StringArray sampleChoices = { "Sample1", "Sample2" };
     std::atomic<bool> shouldUpdate = { false };
+    std::atomic<int> currentSamplerIndex = { 0 };
     juce::MidiKeyboardState keyboardState;
     juce::AudioProcessorValueTreeState APVTS;
     Instruments acousticGuitar = Instruments("Sampler", 4);
     juce::OwnedArray<juce::Synthesiser>& currentSamplers = acousticGuitar.getSamplers();
     juce::ADSR::Parameters adsrParams;
-    int currentSamplerIndex = 0;
+    //int currentSamplerIndex = 0;
     SamplerParams samplerParams;
     juce::Reverb::Parameters reverbParams;
+
     double gainValue = 0.0;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleSamplerAudioProcessor)

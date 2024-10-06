@@ -96,12 +96,13 @@ void SimpleSamplerAudioProcessor::changeProgramName (int index, const juce::Stri
 //==============================================================================
 void SimpleSamplerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    //instrumentManager.getNormalSynth().setCurrentPlaybackSampleRate(sampleRate);
-    //instrumentManager.getPalmMutedSynth().setCurrentPlaybackSampleRate(sampleRate);
+    updateSamplerIndex();
+
     for (auto& sampler : currentSamplers)
     {
         sampler->setCurrentPlaybackSampleRate(sampleRate);
     }
+
     if (shouldUpdate)
     {
         updateADSRParams();
@@ -144,6 +145,7 @@ void SimpleSamplerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
 
     if (shouldUpdate)
     {
+        updateSamplerIndex();
         updateADSRParams();
         shouldUpdate = false;
     }
@@ -155,14 +157,8 @@ void SimpleSamplerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
 
     currentSamplers[currentSamplerIndex]->renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 
-    for (int i = 0; i < totalNumInputChannels; ++i)
-    {
-        auto *writer = buffer.getWritePointer(i);
-        for (int j = 0; j < buffer.getNumSamples(); ++j)
-        {
-            writer[j] = 0.0f;
-        }
-    }
+
+
 }
 
 //==============================================================================
@@ -216,15 +212,17 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleSamplerAudioProcessor:
     params.push_back(std::make_unique<juce::AudioParameterFloat>("DECAY", "Decay", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", juce::NormalisableRange<float>(0.0f, 1.0f), 1.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("GAIN", "Gain", juce::NormalisableRange<float>(-48.0f, 0.0f), -1.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("GAIN", "Gain", juce::NormalisableRange<float>(-24.0f, 24.0f), -1.0f));
+
+    params.push_back(std::make_unique<juce::AudioParameterChoice>("SAMPLE", "Sample", sampleChoices, 0));
 
     //applying Reverb parameters
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("ROOM", "Room", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("DAMP", "Damp", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("WET", "Wet", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("ROOM", "Room", juce::NormalisableRange<float>(0.0f, 1.0f), 1.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("DAMP", "Damp", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("WET", "Wet", juce::NormalisableRange<float>(0.0f, 1.0f), 1.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("DRY", "Dry", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("WIDTH", "Width", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("FREEZE", "Freeze", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("WIDTH", "Width", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("FREEZE", "Freeze", juce::NormalisableRange<float>(0.0f, 1.0f), 0.2f));
     return { params.begin(), params.end() };
 }
 
@@ -254,8 +252,18 @@ void SimpleSamplerAudioProcessor::updateADSRParams()
             sound->setReverbParameters(reverbParams);
         }
     }
-    DBG("updated adsr params");
+
+    DBG("update params");
 }
+
+void SimpleSamplerAudioProcessor::updateSamplerIndex()
+{
+    auto value = APVTS.getRawParameterValue("SAMPLE")->load();
+
+    currentSamplerIndex = static_cast<int>(value);
+    DBG("Updated Sampler index " + std::to_string(currentSamplerIndex));
+}
+
 
 void SimpleSamplerAudioProcessor::valueTreePropertyChanged(ValueTree &treeWhosePropertyHasChanged, const Identifier &property)
 {
