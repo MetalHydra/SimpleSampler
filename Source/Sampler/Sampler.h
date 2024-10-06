@@ -1,5 +1,6 @@
 #include <JuceHeader.h>
 #include "../Params/samplerParams.h"
+#include "juce_dsp/juce_dsp.h"
 
 namespace nSamplerSound {
     class SamplerSound : public SynthesiserSound {
@@ -83,13 +84,15 @@ namespace nSamplerSound {
 
     private:
         //==============================================================================
+
         double pitchRatio = 0;
         double sourceSamplePosition = 0;
         float lgain = 0.0, rgain = 0.0;
         juce::ADSR adsr;
-        juce::Reverb reverb;
+        juce::dsp::ProcessSpec processSpec;
+        juce::dsp::Reverb reverb;
 
-
+        juce::AudioBuffer<float> voiceBuffer { 2, (44100 * 4) + 4 };
         JUCE_LEAK_DETECTOR (SamplerVoice)
     };
 }

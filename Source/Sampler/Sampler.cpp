@@ -65,11 +65,10 @@ void nSamplerSound::SamplerVoice::startNote (int midiNoteNumber, float velocity,
         lgain = velocity;
         rgain = velocity;
 
+
+
         adsr.setSampleRate (sound->sourceSampleRate);
         adsr.setParameters (sound->params);
-        reverb.setSampleRate(sound->sourceSampleRate);
-        reverb.setParameters(sound->reverbParams);
-
         adsr.noteOn();
     }
     else
@@ -98,6 +97,10 @@ void nSamplerSound::SamplerVoice::controllerMoved (int /*controllerNumber*/, int
 //==============================================================================
 void nSamplerSound::SamplerVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
+
+
+    DBG("voicebuffer size: " + std::to_string(voiceBuffer.getNumSamples()));
+    DBG("voicebuffer channels: " + std::to_string(voiceBuffer.getNumChannels()));
     if (auto* playingSound = static_cast<SamplerSound*> (getCurrentlyPlayingSound().get()))
     {
         auto& data = *playingSound->data;
@@ -107,6 +110,18 @@ void nSamplerSound::SamplerVoice::renderNextBlock (juce::AudioBuffer<float>& out
         float* outL = outputBuffer.getWritePointer (0, startSample);
         float* outR = outputBuffer.getNumChannels() > 1 ? outputBuffer.getWritePointer (1, startSample) : nullptr;
 
+        processSpec.numChannels = outputBuffer.getNumChannels();
+        processSpec.sampleRate = 44100.0f;
+        processSpec.maximumBlockSize = numSamples;
+        reverb.prepare(processSpec);
+        reverb.reset();
+
+        reverb.setParameters (playingSound->reverbParams);
+        juce::dsp::AudioBlock<float> block(outputBuffer);
+        reverb.process(juce::dsp::ProcessContextReplacing<float> (block));
+        DBG("data length: " + std::to_string(playingSound->data->getNumSamples()));
+
+        //write samples to voicebuffer
         while (--numSamples >= 0)
         {
             auto pos = (int) sourceSamplePosition;
@@ -115,15 +130,26 @@ void nSamplerSound::SamplerVoice::renderNextBlock (juce::AudioBuffer<float>& out
 
             // just using a very simple linear interpolation here..
             float l = (inL[pos] * invAlpha + inL[pos + 1] * alpha);
-            float r = (inR != nullptr) ? (inR[pos] * invAlpha + inR[pos + 1] * alpha)
-                                       : l;
+            float r = (inR != nullptr) ? (inR[pos] * invAlpha + inR[pos + 1] * alpha) : l;
+
+            if (sourceSamplePosition > playingSound->length)
+            {
+                stopNote (0.0f, false);
+                break;
+            }
+            voiceBuffer.setSample(0, sourceSamplePosition, l);
+            voiceBuffer.setSample(1, sourceSamplePosition, r);
+            sourceSamplePosition += pitchRatio;
+        }
+
+
+        /*
 
             auto envelopeValue = adsr.getNextSample();
             lgain = playingSound->samplerParams.getGain();
             rgain = playingSound->samplerParams.getGain();
             l *= lgain * envelopeValue;
             r *= rgain * envelopeValue;
-
             if (outR != nullptr)
             {
                 *outL++ += l;
@@ -141,16 +167,7 @@ void nSamplerSound::SamplerVoice::renderNextBlock (juce::AudioBuffer<float>& out
                 stopNote (0.0f, false);
                 break;
             }
-        }
-        //DBG("VALUE = 0");
-        if (outR == nullptr)
-        {
-            reverb.processMono(outL, numSamples);
-        }
-        else
-        {
-            reverb.processStereo(outL, outR, numSamples);
-            DBG("process Stereo reverb " + std::to_string(reverb.getParameters().roomSize) + " " + std::to_string(reverb.getParameters().wetLevel));
-        }
+        }*/
+
     }
 }
