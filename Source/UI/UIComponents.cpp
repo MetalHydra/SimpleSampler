@@ -56,6 +56,11 @@ UIComponents::UIComponents(SimpleSamplerAudioProcessor& p) : audioProcessor(p) ,
     gainLabel.attachToComponent(&gainSlider, false);
     gainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.getAPVTS(), "GAIN", gainSlider);
 
+    addAndMakeVisible(sampleSelector);
+    sampleSelector.addItem("Sample1", 1);
+    sampleSelector.addItem("Sample2", 2);
+    sampleSelectorAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.getAPVTS(), "SAMPLE", sampleSelector);
+
     roomSlider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
     roomSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 40,20);
     addAndMakeVisible(roomSlider);
@@ -124,7 +129,7 @@ void UIComponents::resized()
     releaseSlider.setBoundsRelative(0.18f, 0.5f, 0.1f, 0.2f);
     gainSlider.setBoundsRelative(0.24, 0.5f, 0.1f, 0.2f);
 
-
+    sampleSelector.setBounds(450, 250, 200, 20);
 
 
     roomSlider.setBoundsRelative(0.60f, 0.5f, 0.1f, 0.2f);

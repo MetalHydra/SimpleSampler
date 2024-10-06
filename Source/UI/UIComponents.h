@@ -28,6 +28,11 @@ private:
     juce::Label attackLabel, decayLabel, sustainLabel, releaseLabel, gainLabel;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attackAttachment, decayAttachment, sustainAttachment, releaseAttachment, gainAttachment;
 
+
+    juce::ComboBox sampleSelector;
+    juce::Label sampleSelectorLabel;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> sampleSelectorAttachment;
+
     juce::Slider roomSlider, dampSlider, wetSlider, drySlider, widthSlider, freezeSlider;
     juce::Label roomLabel, dampLabel, wetLabel, dryLabel, widthLabel, freezeLabel;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> roomAttachment, dampAttachment, wetAttachment, dryAttachment, widthAttachment, freezeAttachment;
