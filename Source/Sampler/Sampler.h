@@ -79,20 +79,21 @@ namespace nSamplerSound {
 
         void controllerMoved(int controllerNumber, int newValue) override;
 
+        void applyGainToBuffer (juce::AudioBuffer<float>& buffer, float gain);
+
         void renderNextBlock(juce::AudioBuffer<float> &, int startSample, int numSamples) override;
         //using juce::SynthesiserVoice::renderNextBlock;
 
     private:
         //==============================================================================
-
+        friend class SamplerSound;
         double pitchRatio = 0;
         double sourceSamplePosition = 0;
         float lgain = 0.0, rgain = 0.0;
         juce::ADSR adsr;
-        juce::dsp::ProcessSpec processSpec;
-        juce::dsp::Reverb reverb;
-
-        juce::AudioBuffer<float> voiceBuffer { 2, (44100 * 4) + 4 };
+        juce::Reverb reverb;
+        std::atomic<bool> isReady { false };
+        juce::AudioBuffer<float> voiceBuffer; //{ 2, (44100 * 4) + 4 };
         JUCE_LEAK_DETECTOR (SamplerVoice)
     };
 }
