@@ -259,9 +259,8 @@ void SimpleSamplerAudioProcessor::updateADSRParams()
 void SimpleSamplerAudioProcessor::updateSamplerIndex()
 {
     auto value = APVTS.getRawParameterValue("SAMPLE")->load();
-
     currentSamplerIndex = static_cast<int>(value);
-    DBG("Updated Sampler index " + std::to_string(currentSamplerIndex));
+    //DBG("Updated Sampler index " + std::to_string(currentSamplerIndex));
 }
 
 
