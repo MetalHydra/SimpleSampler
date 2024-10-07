@@ -55,6 +55,7 @@ bool nSamplerSound::SamplerVoice::canPlaySound (juce::SynthesiserSound* sound)
 
 void nSamplerSound::SamplerVoice::startNote (int midiNoteNumber, float velocity, juce::SynthesiserSound* s, int /*currentPitchWheelPosition*/)
 {
+    reverb.prepare (spec);
     if (auto* sound = dynamic_cast<const SamplerSound*> (s))
     {
         pitchRatio = std::pow (2.0, (midiNoteNumber - sound->midiRootNote) / 12.0)
@@ -113,9 +114,6 @@ void nSamplerSound::SamplerVoice::renderNextBlock (juce::AudioBuffer<float>& out
         const float* const inL = data.getReadPointer (0);
         const float* const inR = data.getNumChannels() > 1 ? data.getReadPointer (1) : nullptr;
 
-        float* const inLVoice = voiceBuffer.getReadPointer (0);
-        float* const inRVoice = voiceBuffer.getNumChannels() > 1 ? voiceBuffer.getReadPointer (1) : nullptr;
-
         float* outL = outputBuffer.getWritePointer (0, startSample);
         float* outR = outputBuffer.getNumChannels() > 1 ? outputBuffer.getWritePointer (1, startSample) : nullptr;
         int cnt = 0;
@@ -161,10 +159,12 @@ void nSamplerSound::SamplerVoice::renderNextBlock (juce::AudioBuffer<float>& out
         //DBG("finished processed  samples " + std::to_string(cnt));
 
         reverb.setParameters(playingSound->getReverbParameters());
+        auto audioBlock = juce::dsp::AudioBlock<float>(voiceBuffer);
+        auto context = juce::dsp::ProcessContextReplacing<float>(audioBlock);
+
+        reverb.process(context);
 
 
-
-        reverb.processStereo(inLVoice, inRVoice, voiceBuffer.getNumSamples());
 
         voiceBuffer.applyGain(0, cnt, lgain);
         if (outR != nullptr)

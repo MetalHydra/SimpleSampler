@@ -54,7 +54,7 @@ namespace nSamplerSound {
 
         juce::ADSR::Parameters params;
         SamplerParams samplerParams;
-        juce::Reverb::Parameters reverbParams;
+        juce::dsp::Reverb::Parameters reverbParams;
 
         JUCE_LEAK_DETECTOR (SamplerSound)
     };
@@ -64,6 +64,7 @@ namespace nSamplerSound {
         //==============================================================================
         /** Creates a SamplerVoice. */
         SamplerVoice();
+
 
         /** Destructor. */
         ~SamplerVoice() override;
@@ -91,7 +92,13 @@ namespace nSamplerSound {
         double sourceSamplePosition = 0;
         float lgain = 0.0, rgain = 0.0;
         juce::ADSR adsr;
-        juce::Reverb reverb;
+        juce::dsp::ProcessSpec spec = {
+            .sampleRate = 44100.0f,
+            .maximumBlockSize = 512,
+            .numChannels = 2
+        };
+        juce::dsp::Reverb reverb;
+
         std::atomic<bool> isReady { false };
         juce::AudioBuffer<float> voiceBuffer; //{ 2, (44100 * 4) + 4 };
         JUCE_LEAK_DETECTOR (SamplerVoice)
