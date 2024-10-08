@@ -1,106 +1,48 @@
+#pragma once
 #include <JuceHeader.h>
-#include "../Params/samplerParams.h"
-#include "juce_dsp/juce_dsp.h"
-
-namespace nSamplerSound {
-    class SamplerSound : public SynthesiserSound {
-    public:
-        SamplerSound(const juce::String &name,
-                     juce::AudioFormatReader &source,
-                     const juce::BigInteger &midiNotes,
-                     int midiNoteForNormalPitch,
-                     double attackTimeSecs,
-                     double releaseTimeSecs,
-                     double maxSampleLengthSeconds);
+#include "SamplerSound.h"
 
 
-        /** Destructor. */
-        ~SamplerSound() override;
 
-        //==============================================================================
-        [[nodiscard]]
-        const juce::String &getName() const
+class Sampler
+{
+public:
+    Sampler( std::string name,  int numVoices);
 
-        noexcept { return name; }
+    ~Sampler() = default;
 
-        [[nodiscard]]
-        juce::AudioBuffer<float> *getAudioData() const
+    [[nodiscard]]
+    std::string getName() const { return name; }
 
-        noexcept { return data.get(); }
+    [[nodiscard]]
+    int getNumVoices() const { return numVoices; }
 
-        //==============================================================================
-        void setEnvelopeParameters(juce::ADSR::Parameters parametersToUse) { params = parametersToUse; }
+    [[nodiscard]]
+    int getNumSamplers() const { return samplers.size(); }
 
-        void setParameters(const SamplerParams &samplerParamsToUse) { samplerParams = samplerParamsToUse; }
+    void initializeSamplers();
 
-        void setReverbParameters(const juce::Reverb::Parameters &reverbParamsToUse) { reverbParams = reverbParamsToUse; }
+    juce::Synthesiser& getSampler(int index) { return *samplers[index]; }
 
-        juce::Reverb::Parameters getReverbParameters() { return reverbParams; }
+    juce::OwnedArray<juce::Synthesiser>& getSamplers() { return samplers; }
 
-        //==============================================================================
-        bool appliesToNote(int midiNoteNumber) override;
+    void updateADSRParams(juce::ADSR::Parameters &params);
 
-        bool appliesToChannel(int midiChannel) override;
+private:
 
-    private:
-        //==============================================================================
-        friend class SamplerVoice;
+    juce::Array<juce::File> pathToSampleFolders = { juce::File("~/Sampler/SimpleSampler/Source/Sounds/AcousticSamples/"),
+                                                    juce::File("~/Sampler/SimpleSampler/Source/Sounds/AcousticSamplesPalmMuted/")};
 
-        String name;
-        std::unique_ptr<juce::AudioBuffer<float>> data;
-        double sourceSampleRate;
-        BigInteger midiNotes;
-        int length = 0, midiRootNote = 0;
+    std::string name;
+    int numVoices;
 
-        juce::ADSR::Parameters params;
-        SamplerParams samplerParams;
-        juce::dsp::Reverb::Parameters reverbParams;
+    juce::OwnedArray<juce::Synthesiser> samplers;
+    juce::AudioFormatManager audioFormatManager;
+    juce::ADSR adsr;
 
-        JUCE_LEAK_DETECTOR (SamplerSound)
-    };
-
-    class SamplerVoice : public juce::SynthesiserVoice {
-    public:
-        //==============================================================================
-        /** Creates a SamplerVoice. */
-        SamplerVoice();
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Sampler)
+};
 
 
-        /** Destructor. */
-        ~SamplerVoice() override;
 
-        //==============================================================================
-        bool canPlaySound(juce::SynthesiserSound *) override;
 
-        void startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound *, int pitchWheel) override;
-
-        void stopNote(float velocity, bool allowTailOff) override;
-
-        void pitchWheelMoved(int newValue) override;
-
-        void controllerMoved(int controllerNumber, int newValue) override;
-
-        void applyGainToBuffer (juce::AudioBuffer<float>& buffer, float gain);
-
-        void renderNextBlock(juce::AudioBuffer<float> &, int startSample, int numSamples) override;
-        //using juce::SynthesiserVoice::renderNextBlock;
-
-    private:
-        //==============================================================================
-        friend class SamplerSound;
-        double pitchRatio = 0;
-        double sourceSamplePosition = 0;
-        float lgain = 0.0, rgain = 0.0;
-        juce::ADSR adsr;
-        juce::dsp::ProcessSpec spec = {
-            .sampleRate = 44100.0f,
-            .maximumBlockSize = 512,
-            .numChannels = 2
-        };
-        juce::dsp::Reverb reverb;
-
-        std::atomic<bool> isReady { false };
-        juce::AudioBuffer<float> voiceBuffer; //{ 2, (44100 * 4) + 4 };
-        JUCE_LEAK_DETECTOR (SamplerVoice)
-    };
-}
