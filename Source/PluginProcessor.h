@@ -8,7 +8,7 @@
 
 #pragma once
 #include <JuceHeader.h>
-#include "Instruments.h"
+#include "Sampler/Sampler.h"
 #include "Params/samplerParams.h"
 
 
@@ -81,8 +81,8 @@ private:
     std::atomic<int> currentSamplerIndex = { 0 };
     juce::MidiKeyboardState keyboardState;
     juce::AudioProcessorValueTreeState APVTS;
-    Instruments acousticGuitar = Instruments("Sampler", 4);
-    juce::OwnedArray<juce::Synthesiser>& currentSamplers = acousticGuitar.getSamplers();
+    Sampler sampler = Sampler("Sampler", 4);
+    juce::OwnedArray<juce::Synthesiser>& currentSamplers = sampler.getSamplers();
     juce::ADSR::Parameters adsrParams;
     //int currentSamplerIndex = 0;
     SamplerParams samplerParams;
