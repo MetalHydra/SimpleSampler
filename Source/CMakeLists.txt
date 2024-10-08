@@ -73,8 +73,8 @@ target_sources(SimpleSampler
         PluginProcessor.cpp
         UI/UIComponents.cpp
         UI/InstrumentUi.cpp
-        Instruments.cpp
         Sampler/Sampler.cpp
+        Sampler/SamplerSound.cpp
         )
 
 # `target_compile_definitions` adds some preprocessor definitions to our target. In a Projucer
