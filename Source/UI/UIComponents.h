@@ -33,9 +33,9 @@ private:
     juce::Label sampleSelectorLabel;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> sampleSelectorAttachment;
 
-    juce::Slider roomSlider, dampSlider, wetSlider, drySlider, widthSlider, freezeSlider;
-    juce::Label roomLabel, dampLabel, wetLabel, dryLabel, widthLabel, freezeLabel;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> roomAttachment, dampAttachment, wetAttachment, dryAttachment, widthAttachment, freezeAttachment;
+    juce::Slider roomSlider, dampSlider, wetSlider, drySlider, widthSlider;
+    juce::Label roomLabel, dampLabel, wetLabel, dryLabel, widthLabel;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> roomAttachment, dampAttachment, wetAttachment, dryAttachment, widthAttachment;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(UIComponents)
 };

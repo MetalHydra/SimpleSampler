@@ -100,14 +100,6 @@ UIComponents::UIComponents(SimpleSamplerAudioProcessor& p) : audioProcessor(p) ,
     widthLabel.setJustificationType(juce::Justification::centredTop);
     widthLabel.attachToComponent(&widthSlider, false);
     widthAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.getAPVTS(), "WIDTH", widthSlider);
-
-    freezeSlider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
-    freezeSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 40,20);
-    addAndMakeVisible(freezeSlider);
-    freezeLabel.setText("freeze", juce::dontSendNotification);
-    freezeLabel.setJustificationType(juce::Justification::centredTop);
-    freezeLabel.attachToComponent(&freezeSlider, false);
-    freezeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.getAPVTS(), "FREEZE", freezeSlider);
 }
 
 UIComponents::~UIComponents()
@@ -129,14 +121,12 @@ void UIComponents::resized()
     releaseSlider.setBoundsRelative(0.18f, 0.5f, 0.1f, 0.2f);
     gainSlider.setBoundsRelative(0.24, 0.5f, 0.1f, 0.2f);
 
+    roomSlider.setBoundsRelative(0.66f, 0.5f, 0.1f, 0.2f);
+    dampSlider.setBoundsRelative(0.72f, 0.5f, 0.1f, 0.2f);
+    wetSlider.setBoundsRelative(0.78f, 0.5f, 0.1f, 0.2f);
+    drySlider.setBoundsRelative(0.84f, 0.5f, 0.1f, 0.2f);
+    widthSlider.setBoundsRelative(0.9f, 0.5f, 0.1f, 0.2f);
+
     sampleSelector.setBounds(450, 250, 200, 20);
-
-
-    roomSlider.setBoundsRelative(0.60f, 0.5f, 0.1f, 0.2f);
-    dampSlider.setBoundsRelative(0.66f, 0.5f, 0.1f, 0.2f);
-    wetSlider.setBoundsRelative(0.72f, 0.5f, 0.1f, 0.2f);
-    drySlider.setBoundsRelative(0.78f, 0.5f, 0.1f, 0.2f);
-    widthSlider.setBoundsRelative(0.84f, 0.5f, 0.1f, 0.2f);
-    freezeSlider.setBoundsRelative(0.9f, 0.5f, 0.1f, 0.2f);
 
 }
