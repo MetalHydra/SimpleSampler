@@ -29,18 +29,14 @@ namespace nSamplerSound {
         noexcept { return data.get(); }
 
         //==============================================================================
-        void setEnvelopeParameters(juce::ADSR::Parameters parametersToUse) { params = parametersToUse; }
 
-        void setParameters(const SamplerParams &samplerParamsToUse) { samplerParams = samplerParamsToUse; }
+        void setParameters(SamplerParams &samplerParamsToUse) { samplerParams = samplerParamsToUse; }
 
-        void setReverbParameters(const juce::Reverb::Parameters &reverbParamsToUse) { reverbParams = reverbParamsToUse; }
-
-        juce::Reverb::Parameters getReverbParameters() { return reverbParams; }
-
-        //==============================================================================
         bool appliesToNote(int midiNoteNumber) override;
 
         bool appliesToChannel(int midiChannel) override;
+
+        SamplerParams getSamplerParams()  { return samplerParams; }
 
     private:
         //==============================================================================
@@ -52,9 +48,7 @@ namespace nSamplerSound {
         BigInteger midiNotes;
         int length = 0, midiRootNote = 0;
 
-        juce::ADSR::Parameters params;
         SamplerParams samplerParams;
-        juce::dsp::Reverb::Parameters reverbParams;
 
         JUCE_LEAK_DETECTOR (SamplerSound)
     };
@@ -91,16 +85,18 @@ namespace nSamplerSound {
         double pitchRatio = 0;
         double sourceSamplePosition = 0;
         float lgain = 0.0, rgain = 0.0;
-        juce::ADSR adsr;
+
         juce::dsp::ProcessSpec spec = {
             .sampleRate = 44100.0f,
             .maximumBlockSize = 512,
             .numChannels = 2
         };
-        juce::dsp::Reverb reverb;
 
+        juce::ADSR adsr;
+        juce::dsp::Reverb reverb;
         std::atomic<bool> isReady { false };
         juce::AudioBuffer<float> voiceBuffer; //{ 2, (44100 * 4) + 4 };
+
         JUCE_LEAK_DETECTOR (SamplerVoice)
     };
 }
