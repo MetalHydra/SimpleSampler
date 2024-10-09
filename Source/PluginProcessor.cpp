@@ -156,9 +156,6 @@ void SimpleSamplerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), true);
 
     currentSamplers[currentSamplerIndex]->renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
-
-
-
 }
 
 //==============================================================================
@@ -208,25 +205,30 @@ void SimpleSamplerAudioProcessor::handleNoteOff(MidiKeyboardState* source, int m
 juce::AudioProcessorValueTreeState::ParameterLayout SimpleSamplerAudioProcessor::createParameterLayout()
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("ATTACK", "Attack", juce::NormalisableRange<float>(0.0f, 2.0f), 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("DECAY", "Decay", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", juce::NormalisableRange<float>(0.0f, 1.0f), 1.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("GAIN", "Gain", juce::NormalisableRange<float>(-24.0f, 24.0f), -1.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("SUSTAIN", "Sustain", juce::NormalisableRange<float>(0.1f, 2.0f), 1.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("RELEASE", "Release", juce::NormalisableRange<float>(0.0f, 3.0f), 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("GAIN", "Gain", juce::NormalisableRange<float>(-12.0f, 12.0f), -1.0f));
 
     params.push_back(std::make_unique<juce::AudioParameterChoice>("SAMPLE", "Sample", sampleChoices, 0));
 
     //applying Reverb parameters
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("ROOM", "Room", juce::NormalisableRange<float>(0.0f, 1.0f), 1.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("ROOM", "Room", juce::NormalisableRange<float>(0.0f, 1.0f), 0.3f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("DAMP", "Damp", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("WET", "Wet", juce::NormalisableRange<float>(0.0f, 1.0f), 1.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("DRY", "Dry", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("WET", "Wet", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("WIDTH", "Width", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWPASS", "LowpassCutOff", juce::NormalisableRange<float>(20.0f, 20000.0f), 10000.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHPASS", "HighpassCutOff", juce::NormalisableRange<float>(20.0f, 15000.0f), 1000.0f));
+
+    params.push_back(std::make_unique<juce::AudioParameterChoice>("FILTER", "Filter", filterChoices, 0));
+
     return { params.begin(), params.end() };
 }
 
 void SimpleSamplerAudioProcessor::updateParams()
 {
+    auto gain = APVTS.getRawParameterValue("GAIN")->load();
     auto attack = APVTS.getRawParameterValue("ATTACK")->load();
     auto decay = APVTS.getRawParameterValue("DECAY")->load();
     auto sustain = APVTS.getRawParameterValue("SUSTAIN")->load();
@@ -235,18 +237,34 @@ void SimpleSamplerAudioProcessor::updateParams()
     auto roomSize = APVTS.getRawParameterValue("ROOM")->load();
     auto damping = APVTS.getRawParameterValue("DAMP")->load();
     auto wetLevel = APVTS.getRawParameterValue("WET")->load();
-    auto dryLevel = APVTS.getRawParameterValue("DRY")->load();
     auto width = APVTS.getRawParameterValue("WIDTH")->load();
 
-    samplerParams.setGain(APVTS.getRawParameterValue("GAIN")->load());
-    samplerParams.setADSR(attack, decay, sustain, release);
-    samplerParams.setReverb(roomSize, damping, wetLevel, dryLevel, width);
+    auto lowpassCutOff = APVTS.getRawParameterValue("LOWPASS")->load();
+    auto highpassCutOff = APVTS.getRawParameterValue("HIGHPASS")->load();
+
+    auto filterIndex = static_cast<int>(APVTS.getRawParameterValue("FILTER")->load());
+
+    reverbParams.roomSize = roomSize;
+    reverbParams.damping = damping;
+    reverbParams.wetLevel = wetLevel;
+    reverbParams.dryLevel = (1 - wetLevel);
+    reverbParams.width = width;
+
+    adsrParams.attack = attack;
+    adsrParams.decay = decay;
+    adsrParams.sustain = sustain;
+    adsrParams.release = release;
 
     for (int i = 0; i < currentSamplers[currentSamplerIndex]->getNumSounds(); ++i)
     {
         if (auto sound = dynamic_cast<nSamplerSound::SamplerSound*>(currentSamplers[currentSamplerIndex]->getSound(i).get()))
         {
-            sound->setParameters(samplerParams);
+            sound->setReverbParameters(reverbParams);
+            sound->setADSRParameters(adsrParams);
+            sound->setGain(gain);
+            sound->setLowpassCutOff(lowpassCutOff);
+            sound->setHighpassCutOff(highpassCutOff);
+            sound->setFilterIndex(filterIndex);
         }
     }
     DBG("update params");

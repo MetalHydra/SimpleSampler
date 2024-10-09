@@ -77,13 +77,15 @@ public:
     //==============================================================================
 private:
     const StringArray sampleChoices = { "Sample1", "Sample2" };
+    const StringArray filterChoices = { "Lowpass", "Highpass", "Bandpass" };
     std::atomic<bool> shouldUpdate = { true };
     std::atomic<int> currentSamplerIndex = { 0 };
     juce::MidiKeyboardState keyboardState;
     juce::AudioProcessorValueTreeState APVTS;
     Sampler sampler = Sampler("Sampler", 4);
     juce::OwnedArray<juce::Synthesiser>& currentSamplers = sampler.getSamplers();
-    nSamplerSound::SamplerParams samplerParams;
+    juce::dsp::Reverb::Parameters reverbParams;
+    juce::ADSR::Parameters adsrParams;
 
     double gainValue = 0.0;
     //==============================================================================
