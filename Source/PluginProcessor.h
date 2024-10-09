@@ -69,7 +69,7 @@ public:
 
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
-    void updateADSRParams();
+    void updateParams();
 
     void updateSamplerIndex();
 
@@ -77,16 +77,13 @@ public:
     //==============================================================================
 private:
     const StringArray sampleChoices = { "Sample1", "Sample2" };
-    std::atomic<bool> shouldUpdate = { false };
+    std::atomic<bool> shouldUpdate = { true };
     std::atomic<int> currentSamplerIndex = { 0 };
     juce::MidiKeyboardState keyboardState;
     juce::AudioProcessorValueTreeState APVTS;
     Sampler sampler = Sampler("Sampler", 4);
     juce::OwnedArray<juce::Synthesiser>& currentSamplers = sampler.getSamplers();
-    juce::ADSR::Parameters adsrParams;
-    //int currentSamplerIndex = 0;
-    SamplerParams samplerParams;
-    juce::Reverb::Parameters reverbParams;
+    nSamplerSound::SamplerParams samplerParams;
 
     double gainValue = 0.0;
     //==============================================================================

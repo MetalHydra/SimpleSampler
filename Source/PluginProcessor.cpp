@@ -105,7 +105,7 @@ void SimpleSamplerAudioProcessor::prepareToPlay (double sampleRate, int samplesP
 
     if (shouldUpdate)
     {
-        updateADSRParams();
+        updateParams();
         shouldUpdate = false;
     }
 }
@@ -146,7 +146,7 @@ void SimpleSamplerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     if (shouldUpdate)
     {
         updateSamplerIndex();
-        updateADSRParams();
+        updateParams();
         shouldUpdate = false;
     }
 
@@ -222,37 +222,33 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleSamplerAudioProcessor:
     params.push_back(std::make_unique<juce::AudioParameterFloat>("WET", "Wet", juce::NormalisableRange<float>(0.0f, 1.0f), 1.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("DRY", "Dry", juce::NormalisableRange<float>(0.0f, 1.0f), 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("WIDTH", "Width", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("FREEZE", "Freeze", juce::NormalisableRange<float>(0.0f, 1.0f), 0.2f));
     return { params.begin(), params.end() };
 }
 
-void SimpleSamplerAudioProcessor::updateADSRParams()
+void SimpleSamplerAudioProcessor::updateParams()
 {
-    adsrParams.attack = APVTS.getRawParameterValue("ATTACK")->load();
-    adsrParams.decay = APVTS.getRawParameterValue("DECAY")->load();
-    adsrParams.sustain = APVTS.getRawParameterValue("SUSTAIN")->load();
-    adsrParams.release = APVTS.getRawParameterValue("RELEASE")->load();
+    auto attack = APVTS.getRawParameterValue("ATTACK")->load();
+    auto decay = APVTS.getRawParameterValue("DECAY")->load();
+    auto sustain = APVTS.getRawParameterValue("SUSTAIN")->load();
+    auto release = APVTS.getRawParameterValue("RELEASE")->load();
+
+    auto roomSize = APVTS.getRawParameterValue("ROOM")->load();
+    auto damping = APVTS.getRawParameterValue("DAMP")->load();
+    auto wetLevel = APVTS.getRawParameterValue("WET")->load();
+    auto dryLevel = APVTS.getRawParameterValue("DRY")->load();
+    auto width = APVTS.getRawParameterValue("WIDTH")->load();
+
     samplerParams.setGain(APVTS.getRawParameterValue("GAIN")->load());
-
-    //applying Reverb parameters
-    reverbParams.roomSize = APVTS.getRawParameterValue("ROOM")->load();
-    reverbParams.damping = APVTS.getRawParameterValue("DAMP")->load();
-    reverbParams.wetLevel = APVTS.getRawParameterValue("WET")->load();
-    reverbParams.dryLevel = APVTS.getRawParameterValue("DRY")->load();
-    reverbParams.width = APVTS.getRawParameterValue("WIDTH")->load();
-    reverbParams.freezeMode = APVTS.getRawParameterValue("FREEZE")->load();
-
+    samplerParams.setADSR(attack, decay, sustain, release);
+    samplerParams.setReverb(roomSize, damping, wetLevel, dryLevel, width);
 
     for (int i = 0; i < currentSamplers[currentSamplerIndex]->getNumSounds(); ++i)
     {
         if (auto sound = dynamic_cast<nSamplerSound::SamplerSound*>(currentSamplers[currentSamplerIndex]->getSound(i).get()))
         {
-            sound->setEnvelopeParameters(adsrParams);
             sound->setParameters(samplerParams);
-            sound->setReverbParameters(reverbParams);
         }
     }
-
     DBG("update params");
 }
 
