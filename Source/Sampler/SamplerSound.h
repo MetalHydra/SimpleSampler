@@ -1,5 +1,5 @@
 #include <JuceHeader.h>
-#include "../Params/samplerParams.h"
+#include "../Filters/Filters.h"
 #include "juce_dsp/juce_dsp.h"
 
 namespace nSamplerSound {
@@ -30,13 +30,22 @@ namespace nSamplerSound {
 
         //==============================================================================
 
-        void setParameters(SamplerParams &samplerParamsToUse) { samplerParams = samplerParamsToUse; }
+        void setReverbParameters(const juce::Reverb::Parameters &params) noexcept { reverbParams = params; }
+
+        void setADSRParameters(const juce::ADSR::Parameters &params) noexcept { adsrParams = params; }
+
+
+        void setGain(float newGain) noexcept { gain = newGain; }
+
+        void setLowpassCutOff(float newLowpassCutOff) noexcept { lowpassCutOff = newLowpassCutOff; }
+
+        void setHighpassCutOff(float newHighpassCutOff) noexcept { highpassCutOff = newHighpassCutOff; }
+
+        void setFilterIndex(int newIndex) noexcept { filterIndex = newIndex; }
 
         bool appliesToNote(int midiNoteNumber) override;
 
         bool appliesToChannel(int midiChannel) override;
-
-        SamplerParams getSamplerParams()  { return samplerParams; }
 
     private:
         //==============================================================================
@@ -47,8 +56,12 @@ namespace nSamplerSound {
         double sourceSampleRate;
         BigInteger midiNotes;
         int length = 0, midiRootNote = 0;
-
-        SamplerParams samplerParams;
+        float gain = 0.0;
+        int filterIndex = 0;
+        float lowpassCutOff = 6000.0f;
+        float highpassCutOff = 10000.0f;
+        juce::dsp::Reverb::Parameters reverbParams;
+        juce::ADSR::Parameters adsrParams;
 
         JUCE_LEAK_DETECTOR (SamplerSound)
     };
@@ -77,7 +90,6 @@ namespace nSamplerSound {
         void applyGainToBuffer (juce::AudioBuffer<float>& buffer, float gain);
 
         void renderNextBlock(juce::AudioBuffer<float> &, int startSample, int numSamples) override;
-        //using juce::SynthesiserVoice::renderNextBlock;
 
     private:
         //==============================================================================
@@ -94,7 +106,9 @@ namespace nSamplerSound {
 
         juce::ADSR adsr;
         juce::dsp::Reverb reverb;
-        std::atomic<bool> isReady { false };
+        LowpassFilter lowpass;
+        HighpassFilter highpass;
+        std::atomic<int> filterIndex { 0 };
         juce::AudioBuffer<float> voiceBuffer; //{ 2, (44100 * 4) + 4 };
 
         JUCE_LEAK_DETECTOR (SamplerVoice)
