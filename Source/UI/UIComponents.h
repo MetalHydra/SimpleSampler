@@ -29,13 +29,17 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attackAttachment, decayAttachment, sustainAttachment, releaseAttachment, gainAttachment;
 
 
-    juce::ComboBox sampleSelector;
-    juce::Label sampleSelectorLabel;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> sampleSelectorAttachment;
+    juce::ComboBox sampleSelector, filterSelector;
+    juce::Label sampleSelectorLabel, filterSelectorLabel;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> sampleSelectorAttachment, filterSelectorAttachment;
 
-    juce::Slider roomSlider, dampSlider, wetSlider, drySlider, widthSlider;
-    juce::Label roomLabel, dampLabel, wetLabel, dryLabel, widthLabel;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> roomAttachment, dampAttachment, wetAttachment, dryAttachment, widthAttachment;
+    juce::Slider roomSlider, dampSlider, wetSlider, widthSlider;
+    juce::Label roomLabel, dampLabel, wetLabel, widthLabel;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> roomAttachment, dampAttachment, wetAttachment, widthAttachment;
+
+    juce::Slider lowpassCutOffSlider, highpassCutOffSlider;
+    juce::Label lowpassCutOffLabel, highpassCutOffLabel;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowpassCutOffAttachment, highpassCutOffAttachment;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(UIComponents)
 };

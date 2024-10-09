@@ -47,7 +47,6 @@ UIComponents::UIComponents(SimpleSamplerAudioProcessor& p) : audioProcessor(p) ,
     releaseLabel.attachToComponent(&releaseSlider, false);
     releaseAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.getAPVTS(), "RELEASE", releaseSlider);
 
-
     gainSlider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
     gainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 40,20);
     addAndMakeVisible(gainSlider);
@@ -55,11 +54,6 @@ UIComponents::UIComponents(SimpleSamplerAudioProcessor& p) : audioProcessor(p) ,
     gainLabel.setJustificationType(juce::Justification::centredTop);
     gainLabel.attachToComponent(&gainSlider, false);
     gainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.getAPVTS(), "GAIN", gainSlider);
-
-    addAndMakeVisible(sampleSelector);
-    sampleSelector.addItem("Sample1", 1);
-    sampleSelector.addItem("Sample2", 2);
-    sampleSelectorAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.getAPVTS(), "SAMPLE", sampleSelector);
 
     roomSlider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
     roomSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 40,20);
@@ -85,14 +79,6 @@ UIComponents::UIComponents(SimpleSamplerAudioProcessor& p) : audioProcessor(p) ,
     wetLabel.attachToComponent(&wetSlider, false);
     wetAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.getAPVTS(), "WET", wetSlider);
 
-    drySlider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
-    drySlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 40,20);
-    addAndMakeVisible(drySlider);
-    dryLabel.setText("dry", juce::dontSendNotification);
-    dryLabel.setJustificationType(juce::Justification::centredTop);
-    dryLabel.attachToComponent(&drySlider, false);
-    dryAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.getAPVTS(), "DRY", drySlider);
-
     widthSlider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
     widthSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 40,20);
     addAndMakeVisible(widthSlider);
@@ -100,6 +86,33 @@ UIComponents::UIComponents(SimpleSamplerAudioProcessor& p) : audioProcessor(p) ,
     widthLabel.setJustificationType(juce::Justification::centredTop);
     widthLabel.attachToComponent(&widthSlider, false);
     widthAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.getAPVTS(), "WIDTH", widthSlider);
+
+    lowpassCutOffSlider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
+    lowpassCutOffSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 40,20);
+    addAndMakeVisible(lowpassCutOffSlider);
+    lowpassCutOffLabel.setText("lowpass", juce::dontSendNotification);
+    lowpassCutOffLabel.setJustificationType(juce::Justification::centredTop);
+    lowpassCutOffLabel.attachToComponent(&lowpassCutOffSlider, false);
+    lowpassCutOffAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.getAPVTS(), "LOWPASS", lowpassCutOffSlider);
+
+    highpassCutOffSlider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
+    highpassCutOffSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 40,20);
+    addAndMakeVisible(highpassCutOffSlider);
+    highpassCutOffLabel.setText("highpass", juce::dontSendNotification);
+    highpassCutOffLabel.setJustificationType(juce::Justification::centredTop);
+    highpassCutOffLabel.attachToComponent(&highpassCutOffSlider, false);
+    highpassCutOffAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.getAPVTS(), "HIGHPASS", highpassCutOffSlider);
+
+    addAndMakeVisible(sampleSelector);
+    sampleSelector.addItem("Sample1", 1);
+    sampleSelector.addItem("Sample2", 2);
+    sampleSelectorAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.getAPVTS(), "SAMPLE", sampleSelector);
+
+    addAndMakeVisible(filterSelector);
+    filterSelector.addItem("Lowpass", 1);
+    filterSelector.addItem("Highpass", 2);
+    filterSelector.addItem("Bandpass", 3);
+    filterSelectorAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.getAPVTS(), "FILTER", filterSelector);
 }
 
 UIComponents::~UIComponents()
@@ -108,7 +121,12 @@ UIComponents::~UIComponents()
 
 void UIComponents::paint(juce::Graphics& g)
 {
-    g.fillAll(juce::Colours::darkgrey);
+
+    juce::ColourGradient gradient (juce::Colours::darkgrey, 400.0f, 0.0f,  juce::Colours::slategrey, 0.0f, 600.0f, false);
+    g.setGradientFill(gradient);
+    g.setOpacity(0.8f);
+
+    g.fillAll();
 }
 
 void UIComponents::resized()
@@ -121,12 +139,14 @@ void UIComponents::resized()
     releaseSlider.setBoundsRelative(0.18f, 0.5f, 0.1f, 0.2f);
     gainSlider.setBoundsRelative(0.24, 0.5f, 0.1f, 0.2f);
 
-    roomSlider.setBoundsRelative(0.66f, 0.5f, 0.1f, 0.2f);
-    dampSlider.setBoundsRelative(0.72f, 0.5f, 0.1f, 0.2f);
-    wetSlider.setBoundsRelative(0.78f, 0.5f, 0.1f, 0.2f);
-    drySlider.setBoundsRelative(0.84f, 0.5f, 0.1f, 0.2f);
+    roomSlider.setBoundsRelative(0.72f, 0.5f, 0.1f, 0.2f);
+    dampSlider.setBoundsRelative(0.78f, 0.5f, 0.1f, 0.2f);
+    wetSlider.setBoundsRelative(0.84f, 0.5f, 0.1f, 0.2f);
     widthSlider.setBoundsRelative(0.9f, 0.5f, 0.1f, 0.2f);
 
-    sampleSelector.setBounds(450, 250, 200, 20);
+    lowpassCutOffSlider.setBoundsRelative(0, 0.1, 0.1f, 0.18f);
+    highpassCutOffSlider.setBoundsRelative(0.06f, 0.1, 0.1f, 0.18f);
 
+    sampleSelector.setBoundsRelative(0.45, 0.5, 0.15, 0.06);
+    filterSelector.setBoundsRelative(0.025, 0.3, 0.13, 0.04);
 }
