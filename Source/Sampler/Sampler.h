@@ -2,8 +2,6 @@
 #include <JuceHeader.h>
 #include "SamplerSound.h"
 
-
-
 class Sampler
 {
 public:
@@ -26,10 +24,9 @@ public:
 
     juce::OwnedArray<juce::Synthesiser>& getSamplers() { return samplers; }
 
-    void updateADSRParams(juce::ADSR::Parameters &params);
+
 
 private:
-
     juce::Array<juce::File> pathToSampleFolders = { juce::File("~/Sampler/SimpleSampler/Source/Sounds/AcousticSamples/"),
                                                     juce::File("~/Sampler/SimpleSampler/Source/Sounds/AcousticSamplesPalmMuted/")};
 
@@ -38,7 +35,6 @@ private:
 
     juce::OwnedArray<juce::Synthesiser> samplers;
     juce::AudioFormatManager audioFormatManager;
-    juce::ADSR adsr;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Sampler)
 };
