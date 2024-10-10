@@ -152,15 +152,18 @@ void nSamplerSound::SamplerVoice::renderNextBlock (juce::AudioBuffer<float>& out
 
         switch (playingSound->filterIndex)
         {
-        case 1:
+            case 1:
                 lowpass.processBlock(voiceBuffer);
+                 DBG("Lowpass");
                 break;
             case 2:
                 highpass.processBlock(voiceBuffer);
+                DBG("Lowpass");
                 break;
             case 3:
                 highpass.processBlock(voiceBuffer);
                 lowpass.processBlock(voiceBuffer);
+                DBG("Bandpass");
                 break;
             default:
                 break;
