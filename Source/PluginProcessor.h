@@ -12,23 +12,18 @@
 #include "Params/samplerParams.h"
 
 
-//==============================================================================
-/**
-*/
 class SimpleSamplerAudioProcessor  : public juce::AudioProcessor,
                                         public juce::MidiKeyboardState::Listener,
                                         public juce::ValueTree::Listener
 {
 public:
-    //==============================================================================
     SimpleSamplerAudioProcessor();
     ~SimpleSamplerAudioProcessor() override;
 
-    //==============================================================================
+    juce::MidiKeyboardState& getKeyboardState();
 
     juce::AudioProcessorValueTreeState& getAPVTS() { return APVTS; }
 
-    //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
 
@@ -38,11 +33,9 @@ public:
 
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
 
-    //==============================================================================
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override;
 
-    //==============================================================================
     const juce::String getName() const override;
 
     bool acceptsMidi() const override;
@@ -50,19 +43,14 @@ public:
     bool isMidiEffect() const override;
     double getTailLengthSeconds() const override;
 
-    //==============================================================================
     int getNumPrograms() override;
     int getCurrentProgram() override;
     void setCurrentProgram (int index) override;
     const juce::String getProgramName (int index) override;
     void changeProgramName (int index, const juce::String& newName) override;
 
-    //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
-
-    //==============================================================================
-    juce::MidiKeyboardState& getKeyboardState();
 
     void handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity) override;
     void handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity) override;
@@ -74,7 +62,7 @@ public:
     void updateSamplerIndex();
 
     void valueTreePropertyChanged (ValueTree& treeWhosePropertyHasChanged, const Identifier& property ) override;
-    //==============================================================================
+
 private:
     const StringArray sampleChoices = { "Sample1", "Sample2" };
     const StringArray filterChoices = { "Lowpass", "Highpass", "Bandpass" };
@@ -88,6 +76,6 @@ private:
     juce::ADSR::Parameters adsrParams;
 
     double gainValue = 0.0;
-    //==============================================================================
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleSamplerAudioProcessor)
 };

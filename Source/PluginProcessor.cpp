@@ -9,7 +9,6 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-//==============================================================================
 SimpleSamplerAudioProcessor::SimpleSamplerAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
      : AudioProcessor (BusesProperties()
@@ -28,11 +27,9 @@ SimpleSamplerAudioProcessor::SimpleSamplerAudioProcessor()
 
 SimpleSamplerAudioProcessor::~SimpleSamplerAudioProcessor()
 {
+
 }
 
-//returns the keyboardstate which is required for the initialisation of the keyboard
-
-//==============================================================================
 const juce::String SimpleSamplerAudioProcessor::getName() const
 {
     return JucePlugin_Name;
@@ -82,6 +79,7 @@ int SimpleSamplerAudioProcessor::getCurrentProgram()
 
 void SimpleSamplerAudioProcessor::setCurrentProgram (int index)
 {
+
 }
 
 const juce::String SimpleSamplerAudioProcessor::getProgramName (int index)
@@ -91,9 +89,9 @@ const juce::String SimpleSamplerAudioProcessor::getProgramName (int index)
 
 void SimpleSamplerAudioProcessor::changeProgramName (int index, const juce::String& newName)
 {
+
 }
 
-//==============================================================================
 void SimpleSamplerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     updateSamplerIndex();
@@ -158,7 +156,6 @@ void SimpleSamplerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     currentSamplers[currentSamplerIndex]->renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 }
 
-//==============================================================================
 bool SimpleSamplerAudioProcessor::hasEditor() const
 {
     return true; // (change this to false if you choose to not supply an editor)
@@ -169,7 +166,6 @@ juce::AudioProcessorEditor* SimpleSamplerAudioProcessor::createEditor()
     return new SimpleSamplerAudioProcessorEditor (*this);
 }
 
-//==============================================================================
 void SimpleSamplerAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
 
@@ -180,8 +176,6 @@ void SimpleSamplerAudioProcessor::setStateInformation (const void* data, int siz
 
 }
 
-//==============================================================================
-// This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new SimpleSamplerAudioProcessor();
@@ -255,6 +249,8 @@ void SimpleSamplerAudioProcessor::updateParams()
     adsrParams.sustain = sustain;
     adsrParams.release = release;
 
+    DBG("Filter index" + std::to_string(filterIndex));
+
     for (int i = 0; i < currentSamplers[currentSamplerIndex]->getNumSounds(); ++i)
     {
         if (auto sound = dynamic_cast<nSamplerSound::SamplerSound*>(currentSamplers[currentSamplerIndex]->getSound(i).get()))
@@ -264,7 +260,7 @@ void SimpleSamplerAudioProcessor::updateParams()
             sound->setGain(gain);
             sound->setLowpassCutOff(lowpassCutOff);
             sound->setHighpassCutOff(highpassCutOff);
-            sound->setFilterIndex(filterIndex);
+            sound->setFilterIndex(filterIndex+1);
         }
     }
     DBG("update params");
