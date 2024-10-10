@@ -31,5 +31,5 @@ private:
     float samplerate = 44100.0f;
     std::vector<float> dnBuffer;
 
-    JUCE_LEAK_DETECTOR(LowpassFilter)
+    JUCE_LEAK_DETECTOR(HighpassFilter)
 };
