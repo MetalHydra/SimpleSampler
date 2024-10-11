@@ -255,9 +255,11 @@ void SimpleSamplerAudioProcessor::updateParams()
     {
         if (auto sound = dynamic_cast<nSamplerSound::SamplerSound*>(currentSamplers[currentSamplerIndex]->getSound(i).get()))
         {
+
             sound->setReverbParameters(reverbParams);
             sound->setADSRParameters(adsrParams);
-            sound->setGain(gain);
+            sound->gainParameters.lGain = gain;
+            sound->gainParameters.rGain = gain;
             sound->setLowpassCutOff(lowpassCutOff);
             sound->setHighpassCutOff(highpassCutOff);
             sound->setFilterIndex(filterIndex+1);
