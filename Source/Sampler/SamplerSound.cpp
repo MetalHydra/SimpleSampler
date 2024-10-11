@@ -28,6 +28,46 @@ nSamplerSound::SamplerSound::SamplerSound (const juce::String& soundName,
 
 nSamplerSound::SamplerSound::~SamplerSound()
 {
+
+}
+
+
+void nSamplerSound::SamplerSound::setGainParameters(float lGain, float rGain, bool useLinearGain)
+{
+    if (! useLinearGain)
+    {
+        gainParams.LGain = std::pow(10, lGain / 20);
+        gainParams.RGain = std::pow(10, rGain / 20);
+    }
+    else
+    {
+        gainParams.LGain = lGain;
+        gainParams.RGain = rGain;
+    }
+}
+
+void nSamplerSound::SamplerSound::setAdsrParameters(float attack, float decay, float sustain, float release)
+{
+    adsrParams.attack = attack;
+    adsrParams.decay = decay;
+    adsrParams.sustain = sustain;
+    adsrParams.release = release;
+}
+
+void nSamplerSound::SamplerSound::setFilterParameters(filterType type, float lowpassCutOff, float highpassCutOff)
+{
+    filterParams.type = type;
+    filterParams.lowpassCutOff = lowpassCutOff;
+    filterParams.highpassCutOff = highpassCutOff;
+}
+
+void nSamplerSound::SamplerSound::setReverbParameters(float room, float damp, float width, float wet, float dry)
+{
+    reverbParams.roomSize = room;
+    reverbParams.damping = damp;
+    reverbParams.width = width;
+    reverbParams.wetLevel = wet;
+    reverbParams.dryLevel = dry;
 }
 
 bool nSamplerSound::SamplerSound::appliesToNote (int midiNoteNumber)
@@ -110,8 +150,8 @@ void nSamplerSound::SamplerVoice::renderNextBlock (juce::AudioBuffer<float>& out
 
         lowpass.setSamplingRate(playingSound->sourceSampleRate);
         highpass.setSamplingRate(playingSound->sourceSampleRate);
-        lowpass.setCutOffFrequency(playingSound->lowpassCutOff);
-        highpass.setCutOffFrequency(playingSound->highpassCutOff);
+        lowpass.setCutOffFrequency(playingSound->filterParams.lowpassCutOff);
+        highpass.setCutOffFrequency(playingSound->filterParams.highpassCutOff);
 
         int cnt = 0;
         for (int sample = 0; sample < numSamples; ++sample)
@@ -124,8 +164,8 @@ void nSamplerSound::SamplerVoice::renderNextBlock (juce::AudioBuffer<float>& out
             float r = (inR != nullptr) ? (inR[pos] * invAlpha + inR[pos + 1] * alpha) : l;
 
             auto envelopeValue = adsr.getNextSample();
-            lgain = playingSound->gain;
-            rgain = lgain;
+            lgain = playingSound->gainParams.LGain;
+            rgain = playingSound->gainParams.RGain;
             l *=  envelopeValue;
             r *=  envelopeValue;
             if (outR != nullptr)

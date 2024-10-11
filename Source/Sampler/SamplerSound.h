@@ -15,14 +15,14 @@ namespace nSamplerSound {
     {
         float LGain = 0.0f;
         float RGain = 0.0f;
-    }
+    };
 
     struct filterParameters
     {
         filterType type;
         float lowpassCutOff;
         float highpassCutOff;
-    }
+    };
 
     class SamplerSound : public SynthesiserSound
     {
@@ -35,19 +35,22 @@ namespace nSamplerSound {
                          double releaseTimeSecs,
                          double maxSampleLengthSeconds);
 
-
-            /** Destructor. */
             ~SamplerSound() override;
 
             [[nodiscard]] const juce::String &getName() const noexcept { return name; }
 
             [[nodiscard]] juce::AudioBuffer<float> *getAudioData() const noexcept { return data.get(); }
 
+            void setGainParameters(float lGain, float rGain, bool useLinearGain);
+
+            void setFilterParameters(filterType type, float lowpassCutOff, float highpassCutOff);
+
+            void setAdsrParameters(float attack, float decay, float sustain, float release);
+
+            void setReverbParameters(float room, float damp, float width, float wet, float dry);
 
 
-            void setFilterIndex(int newIndex) noexcept { filterIndex = newIndex; }
-
-            bool appliesToNote(int midiNoteNumber) override;
+        bool appliesToNote(int midiNoteNumber) override;
 
             bool appliesToChannel(int midiChannel) override;
 
@@ -64,7 +67,6 @@ namespace nSamplerSound {
             gainParameters gainParams;
             filterParameters filterParams;
             filterType filterType = filterType::lowpass;
-            std::atomic<int> filterIndex = 0;
             juce::dsp::Reverb::Parameters reverbParams;
             juce::ADSR::Parameters adsrParams;
 
