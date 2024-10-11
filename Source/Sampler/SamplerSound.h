@@ -4,6 +4,26 @@
 
 namespace nSamplerSound {
 
+    enum filterType
+    {
+        lowpass = 0,
+        highpass = 1,
+        bandpass = 2
+    };
+
+    struct gainParameters
+    {
+        float LGain = 0.0f;
+        float RGain = 0.0f;
+    }
+
+    struct filterParameters
+    {
+        filterType type;
+        float lowpassCutOff;
+        float highpassCutOff;
+    }
+
     class SamplerSound : public SynthesiserSound
     {
         public:
@@ -23,16 +43,7 @@ namespace nSamplerSound {
 
             [[nodiscard]] juce::AudioBuffer<float> *getAudioData() const noexcept { return data.get(); }
 
-            void setReverbParameters(const juce::Reverb::Parameters &params) noexcept { reverbParams = params; }
 
-            void setADSRParameters(const juce::ADSR::Parameters &params) noexcept { adsrParams = params; }
-
-
-            void setGain(float newGain) noexcept { gain = std::pow(10, newGain / 20); }
-
-            void setLowpassCutOff(float newLowpassCutOff) noexcept { lowpassCutOff = newLowpassCutOff; }
-
-            void setHighpassCutOff(float newHighpassCutOff) noexcept { highpassCutOff = newHighpassCutOff; }
 
             void setFilterIndex(int newIndex) noexcept { filterIndex = newIndex; }
 
@@ -41,7 +52,7 @@ namespace nSamplerSound {
             bool appliesToChannel(int midiChannel) override;
 
         private:
-            //==============================================================================
+
             friend class SamplerVoice;
 
             String name;
@@ -50,10 +61,10 @@ namespace nSamplerSound {
             BigInteger midiNotes;
             int length = 0, midiRootNote = 0;
 
-            float gain = 0.0;
+            gainParameters gainParams;
+            filterParameters filterParams;
+            filterType filterType = filterType::lowpass;
             std::atomic<int> filterIndex = 0;
-            float lowpassCutOff = 6000.0f;
-            float highpassCutOff = 10000.0f;
             juce::dsp::Reverb::Parameters reverbParams;
             juce::ADSR::Parameters adsrParams;
 
@@ -62,15 +73,10 @@ namespace nSamplerSound {
 
     class SamplerVoice : public juce::SynthesiserVoice {
     public:
-        //==============================================================================
-        /** Creates a SamplerVoice. */
         SamplerVoice();
 
-
-        /** Destructor. */
         ~SamplerVoice() override;
 
-        //==============================================================================
         bool canPlaySound(juce::SynthesiserSound *) override;
 
         void startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound *, int pitchWheel) override;
@@ -103,7 +109,8 @@ namespace nSamplerSound {
         LowpassFilter lowpass;
         HighpassFilter highpass;
         std::atomic<int> filterIndex { 0 };
-        juce::AudioBuffer<float> voiceBuffer; //{ 2, (44100 * 4) + 4 };
+        // structure of each sample: { 2, (44100 * 4) + 4 };
+        juce::AudioBuffer<float> voiceBuffer;
 
         JUCE_LEAK_DETECTOR (SamplerVoice)
     };
