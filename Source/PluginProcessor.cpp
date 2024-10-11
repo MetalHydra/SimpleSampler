@@ -255,14 +255,10 @@ void SimpleSamplerAudioProcessor::updateParams()
     {
         if (auto sound = dynamic_cast<nSamplerSound::SamplerSound*>(currentSamplers[currentSamplerIndex]->getSound(i).get()))
         {
-
-            sound->setReverbParameters(reverbParams);
-            sound->setADSRParameters(adsrParams);
-            sound->gainParameters.lGain = gain;
-            sound->gainParameters.rGain = gain;
-            sound->setLowpassCutOff(lowpassCutOff);
-            sound->setHighpassCutOff(highpassCutOff);
-            sound->setFilterIndex(filterIndex+1);
+            sound->setGainParameters(gain, gain, false);
+            sound->setReverbParameters(roomSize, damping, width, wetLevel, (1 - wetLevel));
+            sound->setAdsrParameters(attack, decay, sustain, release);
+            sound->setFilterParameters(lowpassCutOff, highpassCutOff);
         }
     }
     DBG("update params");

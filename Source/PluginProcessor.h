@@ -72,10 +72,6 @@ private:
     juce::AudioProcessorValueTreeState APVTS;
     Sampler sampler = Sampler("Sampler", 4);
     juce::OwnedArray<juce::Synthesiser>& currentSamplers = sampler.getSamplers();
-    juce::dsp::Reverb::Parameters reverbParams;
-    juce::ADSR::Parameters adsrParams;
-
-    double gainValue = 0.0;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleSamplerAudioProcessor)
 };
