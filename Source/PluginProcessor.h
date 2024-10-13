@@ -9,7 +9,6 @@
 #pragma once
 #include <JuceHeader.h>
 #include "Sampler/Sampler.h"
-#include "Params/samplerParams.h"
 
 
 class SimpleSamplerAudioProcessor  : public juce::AudioProcessor,

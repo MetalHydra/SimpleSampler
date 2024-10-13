@@ -238,18 +238,7 @@ void SimpleSamplerAudioProcessor::updateParams()
 
     auto filterIndex = static_cast<int>(APVTS.getRawParameterValue("FILTER")->load());
 
-    reverbParams.roomSize = roomSize;
-    reverbParams.damping = damping;
-    reverbParams.wetLevel = wetLevel;
-    reverbParams.dryLevel = (1 - wetLevel);
-    reverbParams.width = width;
-
-    adsrParams.attack = attack;
-    adsrParams.decay = decay;
-    adsrParams.sustain = sustain;
-    adsrParams.release = release;
-
-    DBG("Filter index" + std::to_string(filterIndex));
+    //DBG("Filter index" + std::to_string(filterIndex));
 
     for (int i = 0; i < currentSamplers[currentSamplerIndex]->getNumSounds(); ++i)
     {
@@ -258,7 +247,7 @@ void SimpleSamplerAudioProcessor::updateParams()
             sound->setGainParameters(gain, gain, false);
             sound->setReverbParameters(roomSize, damping, width, wetLevel, (1 - wetLevel));
             sound->setAdsrParameters(attack, decay, sustain, release);
-            sound->setFilterParameters(lowpassCutOff, highpassCutOff);
+            sound->setFilterParameters(filterIndex+1, lowpassCutOff, highpassCutOff);
         }
     }
     DBG("update params");
@@ -268,9 +257,7 @@ void SimpleSamplerAudioProcessor::updateSamplerIndex()
 {
     auto value = APVTS.getRawParameterValue("SAMPLE")->load();
     currentSamplerIndex = static_cast<int>(value);
-    //DBG("Updated Sampler index " + std::to_string(currentSamplerIndex));
 }
-
 
 void SimpleSamplerAudioProcessor::valueTreePropertyChanged(ValueTree &treeWhosePropertyHasChanged, const Identifier &property)
 {
