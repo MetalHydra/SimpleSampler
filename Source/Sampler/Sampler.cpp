@@ -22,6 +22,7 @@ void Sampler::initializeSamplers()
             auto file = entry.getFile();
             auto reader = audioFormatManager.createReaderFor(file);
             auto midiNumber = file.getFileNameWithoutExtension().getIntValue();
+
             DBG("midi number: " + std::to_string(midiNumber));
             samplers[i]->addSound(new nSamplerSound::SamplerSound(file.getFileNameWithoutExtension(), *reader, BigInteger().setBit(midiNumber,true), midiNumber, 0.2, 0.2, 4.0));
             delete reader;
