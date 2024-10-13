@@ -8,7 +8,7 @@ SimpleSampler is a JUCE-based audio plugin that allows you to play and manipulat
 ## Features
 
 - **Samples Included:**
-  - Acoustic guitar strums
+  - Acoustic guitar Samples
   - Palm-muted acoustic guitar notes
 
 - **Settings:**
