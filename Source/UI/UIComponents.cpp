@@ -106,26 +106,29 @@ UIComponents::UIComponents(SimpleSamplerAudioProcessor& p) : audioProcessor(p) ,
     addAndMakeVisible(sampleSelector);
     sampleSelector.addItem("Sample1", 1);
     sampleSelector.addItem("Sample2", 2);
+    sampleSelector.setColour(juce::ComboBox::backgroundColourId, juce::Colours::transparentBlack);
     sampleSelectorAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.getAPVTS(), "SAMPLE", sampleSelector);
 
     addAndMakeVisible(filterSelector);
     filterSelector.addItem("Lowpass", 1);
     filterSelector.addItem("Highpass", 2);
     filterSelector.addItem("Bandpass", 3);
+    filterSelector.setColour(juce::ComboBox::backgroundColourId, juce::Colours::transparentBlack);
     filterSelectorAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.getAPVTS(), "FILTER", filterSelector);
 }
 
 UIComponents::~UIComponents()
 {
+
 }
 
 void UIComponents::paint(juce::Graphics& g)
 {
+    DBG("keyboard position: " + std::to_string(keyboardComponent.getX()) + ", " + std::to_string(keyboardComponent.getY()));
 
-    juce::ColourGradient gradient (juce::Colours::darkgrey, 400.0f, 0.0f,  juce::Colours::slategrey, 0.0f, 600.0f, false);
+    juce::ColourGradient gradient (juce::Colours::blueviolet, 200.0f, 0.0f,  juce::Colours::black, 0.0f, 600.0f, true);
     g.setGradientFill(gradient);
     g.setOpacity(0.8f);
-
     g.fillAll();
 }
 
