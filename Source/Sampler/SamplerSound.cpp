@@ -54,9 +54,9 @@ void nSamplerSound::SamplerSound::setAdsrParameters(float attack, float decay, f
     adsrParams.release = release;
 }
 
-void nSamplerSound::SamplerSound::setFilterParameters(filterType type, float lowpassCutOff, float highpassCutOff)
+void nSamplerSound::SamplerSound::setFilterParameters(int filterIndex, float lowpassCutOff, float highpassCutOff)
 {
-    filterParams.type = type;
+    filterParams.filterIndex = filterIndex;
     filterParams.lowpassCutOff = lowpassCutOff;
     filterParams.highpassCutOff = highpassCutOff;
 }
@@ -190,7 +190,7 @@ void nSamplerSound::SamplerVoice::renderNextBlock (juce::AudioBuffer<float>& out
             cnt++;
         }
 
-        switch (playingSound->filterIndex)
+        switch (playingSound->filterParams.filterIndex)
         {
             case 1:
                 lowpass.processBlock(voiceBuffer);
@@ -198,7 +198,7 @@ void nSamplerSound::SamplerVoice::renderNextBlock (juce::AudioBuffer<float>& out
                 break;
             case 2:
                 highpass.processBlock(voiceBuffer);
-                DBG("Lowpass");
+                DBG("Highpass");
                 break;
             case 3:
                 highpass.processBlock(voiceBuffer);

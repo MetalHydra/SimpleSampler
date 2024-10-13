@@ -4,13 +4,6 @@
 
 namespace nSamplerSound {
 
-    enum filterType
-    {
-        lowpass = 0,
-        highpass = 1,
-        bandpass = 2
-    };
-
     struct gainParameters
     {
         float LGain = 0.0f;
@@ -19,7 +12,7 @@ namespace nSamplerSound {
 
     struct filterParameters
     {
-        filterType type;
+        int filterIndex;
         float lowpassCutOff;
         float highpassCutOff;
     };
@@ -43,7 +36,7 @@ namespace nSamplerSound {
 
             void setGainParameters(float lGain, float rGain, bool useLinearGain);
 
-            void setFilterParameters(filterType type, float lowpassCutOff, float highpassCutOff);
+            void setFilterParameters(int filterIndex, float lowpassCutOff, float highpassCutOff);
 
             void setAdsrParameters(float attack, float decay, float sustain, float release);
 
@@ -66,9 +59,10 @@ namespace nSamplerSound {
 
             gainParameters gainParams;
             filterParameters filterParams;
-            filterType filterType = filterType::lowpass;
+            juce::String filterType;
             juce::dsp::Reverb::Parameters reverbParams;
             juce::ADSR::Parameters adsrParams;
+
 
             JUCE_LEAK_DETECTOR (SamplerSound)
     };
