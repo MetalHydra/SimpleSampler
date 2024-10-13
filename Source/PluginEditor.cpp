@@ -28,14 +28,10 @@ SimpleSamplerAudioProcessorEditor::~SimpleSamplerAudioProcessorEditor()
 //==============================================================================
 void SimpleSamplerAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    g.fillAll (juce::Colours::darkgrey);
 
 }
 
 void SimpleSamplerAudioProcessorEditor::resized()
 {
-    // This is generally where you'll want to lay out the positions of any
-    // subcomponents in your editor..
     mainComponents.setBounds (0, 0, getWidth(), getHeight());
-
 }

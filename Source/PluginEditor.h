@@ -11,8 +11,6 @@
 #include "PluginProcessor.h"
 #include "UI/UIComponents.h"
 
-#include "UI/InstrumentUi.h"
-
 //==============================================================================
 /**
 */
