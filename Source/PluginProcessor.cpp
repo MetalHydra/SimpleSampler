@@ -95,6 +95,9 @@ void SimpleSamplerAudioProcessor::changeProgramName (int index, const juce::Stri
 void SimpleSamplerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     updateSamplerIndex();
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.numChannels = getTotalNumOutputChannels();
 
     for (auto& sampler : currentSamplers)
     {
@@ -207,7 +210,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleSamplerAudioProcessor:
 
     params.push_back(std::make_unique<juce::AudioParameterChoice>("SAMPLE", "Sample", sampleChoices, 0));
 
-    //applying Reverb parameters
     params.push_back(std::make_unique<juce::AudioParameterFloat>("ROOM", "Room", juce::NormalisableRange<float>(0.0f, 1.0f), 0.3f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("DAMP", "Damp", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("WET", "Wet", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
@@ -238,19 +240,18 @@ void SimpleSamplerAudioProcessor::updateParams()
 
     auto filterIndex = static_cast<int>(APVTS.getRawParameterValue("FILTER")->load());
 
-    //DBG("Filter index" + std::to_string(filterIndex));
-
     for (int i = 0; i < currentSamplers[currentSamplerIndex]->getNumSounds(); ++i)
     {
         if (auto sound = dynamic_cast<nSamplerSound::SamplerSound*>(currentSamplers[currentSamplerIndex]->getSound(i).get()))
         {
+            sound->setSpec(spec);
             sound->setGainParameters(gain, gain, false);
             sound->setReverbParameters(roomSize, damping, width, wetLevel, (1 - wetLevel));
             sound->setAdsrParameters(attack, decay, sustain, release);
             sound->setFilterParameters(filterIndex+1, lowpassCutOff, highpassCutOff);
         }
     }
-    DBG("update params");
+    //DBG("update params");
 }
 
 void SimpleSamplerAudioProcessor::updateSamplerIndex()

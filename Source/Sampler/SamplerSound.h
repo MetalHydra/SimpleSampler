@@ -42,6 +42,8 @@ namespace nSamplerSound {
 
             void setReverbParameters(float room, float damp, float width, float wet, float dry);
 
+            void setSpec(juce::dsp::ProcessSpec& spec) { this->spec = spec; }
+
 
         bool appliesToNote(int midiNoteNumber) override;
 
@@ -62,6 +64,8 @@ namespace nSamplerSound {
             juce::String filterType;
             juce::dsp::Reverb::Parameters reverbParams;
             juce::ADSR::Parameters adsrParams;
+
+            juce::dsp::ProcessSpec spec;
 
 
             JUCE_LEAK_DETECTOR (SamplerSound)
@@ -92,13 +96,8 @@ namespace nSamplerSound {
         friend class SamplerSound;
         double pitchRatio = 0;
         double sourceSamplePosition = 0;
-        float lgain = 0.0, rgain = 0.0;
 
-        juce::dsp::ProcessSpec spec = {
-            .sampleRate = 44100.0f,
-            .maximumBlockSize = 512,
-            .numChannels = 2
-        };
+
 
         juce::ADSR adsr;
         juce::dsp::Reverb reverb;

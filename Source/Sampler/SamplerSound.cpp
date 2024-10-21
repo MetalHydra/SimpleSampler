@@ -36,8 +36,8 @@ void nSamplerSound::SamplerSound::setGainParameters(float lGain, float rGain, bo
 {
     if (! useLinearGain)
     {
-        gainParams.LGain = std::pow(10, lGain / 20);
-        gainParams.RGain = std::pow(10, rGain / 20);
+        gainParams.LGain = std::pow(10, lGain *0.05);
+        gainParams.RGain = std::pow(10, rGain * 0.05);
     }
     else
     {
@@ -91,16 +91,15 @@ bool nSamplerSound::SamplerVoice::canPlaySound (juce::SynthesiserSound* sound)
 
 void nSamplerSound::SamplerVoice::startNote (int midiNoteNumber, float velocity, juce::SynthesiserSound* s, int /*currentPitchWheelPosition*/)
 {
-    reverb.prepare (spec);
+
     if (auto* sound = dynamic_cast<const SamplerSound*> (s))
     {
         pitchRatio = std::pow (2.0, (midiNoteNumber - sound->midiRootNote) / 12.0)
                         * sound->sourceSampleRate / getSampleRate();
 
         sourceSamplePosition = 0.0;
-        lgain = velocity;
-        rgain = velocity;
-
+        reverb.prepare (sound->spec);
+        reverb.setParameters (sound->reverbParams);
         adsr.setSampleRate (sound->sourceSampleRate);
         adsr.setParameters (sound->adsrParams);
         adsr.noteOn();
@@ -126,6 +125,7 @@ void nSamplerSound::SamplerVoice::stopNote (float /*velocity*/, bool allowTailOf
 }
 
 void nSamplerSound::SamplerVoice::pitchWheelMoved (int /*newValue*/) {}
+
 void nSamplerSound::SamplerVoice::controllerMoved (int /*controllerNumber*/, int /*newValue*/) {}
 
 void nSamplerSound::SamplerVoice::applyGainToBuffer (juce::AudioBuffer<float>& buffer, float gain)
@@ -164,8 +164,6 @@ void nSamplerSound::SamplerVoice::renderNextBlock (juce::AudioBuffer<float>& out
             float r = (inR != nullptr) ? (inR[pos] * invAlpha + inR[pos + 1] * alpha) : l;
 
             auto envelopeValue = adsr.getNextSample();
-            lgain = playingSound->gainParams.LGain;
-            rgain = playingSound->gainParams.RGain;
             l *=  envelopeValue;
             r *=  envelopeValue;
             if (outR != nullptr)
@@ -215,7 +213,7 @@ void nSamplerSound::SamplerVoice::renderNextBlock (juce::AudioBuffer<float>& out
 
         reverb.process(context);
 
-        voiceBuffer.applyGain(0, cnt, lgain);
+        voiceBuffer.applyGain(0, cnt, playingSound->gainParams.LGain);
         if (outR != nullptr)
         {
             for(int sample = 0; sample < cnt; ++sample)
