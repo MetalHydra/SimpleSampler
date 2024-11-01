@@ -11,6 +11,8 @@
 #pragma once
 #include <JuceHeader.h>
 #include "FilterComponents.h"
+#include "AdsrComponents.h"
+#include "ReverbComponent.h"
 #include "../PluginProcessor.h"
 
 
@@ -29,21 +31,14 @@ private:
     juce::MidiKeyboardComponent keyboardComponent;
 
     FilterComponents filterComponents;
+    AdsrComponents adsrComponents;
+    ReverbComponent reverbComponent;
 
     juce::TabbedComponent tabbedComponent;
-
-    juce::Slider attackSlider, decaySlider, sustainSlider, releaseSlider, gainSlider;
-    juce::Label attackLabel, decayLabel, sustainLabel, releaseLabel, gainLabel;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attackAttachment, decayAttachment, sustainAttachment, releaseAttachment, gainAttachment;
 
     juce::ComboBox sampleSelector;
     juce::Label sampleSelectorLabel;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> sampleSelectorAttachment;
-
-    juce::Slider roomSlider, dampSlider, wetSlider, widthSlider;
-    juce::Label roomLabel, dampLabel, wetLabel, widthLabel;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> roomAttachment, dampAttachment, wetAttachment, widthAttachment;
-
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(UIComponents)
 };
