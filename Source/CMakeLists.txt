@@ -73,6 +73,8 @@ target_sources(SimpleSampler
         PluginProcessor.cpp
         UI/UIComponents.cpp
         UI/FilterComponents.cpp
+        UI/AdsrComponents.cpp
+        UI/ReverbComponent.cpp
         Sampler/Sampler.cpp
         Sampler/SamplerSound.cpp
         Filters/Filters.cpp
