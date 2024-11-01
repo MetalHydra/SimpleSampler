@@ -72,6 +72,7 @@ target_sources(SimpleSampler
         PluginEditor.cpp
         PluginProcessor.cpp
         UI/UIComponents.cpp
+        UI/FilterComponents.cpp
         Sampler/Sampler.cpp
         Sampler/SamplerSound.cpp
         Filters/Filters.cpp
