@@ -2,7 +2,21 @@
 // Created by sekiro on 06.11.24.
 //
 
-#ifndef SIMPLESAMPLER_INSTRUMENTS_H
-#define SIMPLESAMPLER_INSTRUMENTS_H
+#pragma once
+#include <JuceHeader.h>
+#include "../PluginProcessor.h"
 
-#endif //SIMPLESAMPLER_INSTRUMENTS_H
+class Instruments : public juce::Component {
+public:
+     Instruments(SimpleSamplerAudioProcessor& processor);
+     ~Instruments() override;
+
+     void paint (juce::Graphics& g) override;
+     void resized() override;
+
+private:
+    SimpleSamplerAudioProcessor& processor;
+    juce::ComboBox sampleSelector;
+    juce::Label sampleSelectorLabel;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> sampleSelectorAttachment;
+};
