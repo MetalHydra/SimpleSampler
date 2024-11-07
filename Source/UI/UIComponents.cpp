@@ -12,25 +12,16 @@
 #include "UIComponents.h"
 
 UIComponents::UIComponents(SimpleSamplerAudioProcessor& p) : audioProcessor(p) , keyboardComponent(p.getKeyboardState(), juce::MidiKeyboardComponent::horizontalKeyboard),
-                                                             filterComponents(p), adsrComponents(p), reverbComponent(p) , tabbedComponent(juce::TabbedButtonBar::TabsAtTop) {
+                                                             filterComponents(p), adsrComponents(p), reverbComponent(p), instruments(p), tabbedComponent(juce::TabbedButtonBar::TabsAtTop) {
     addAndMakeVisible(keyboardComponent);
-
-    addAndMakeVisible(sampleSelector);
-    sampleSelector.addItem("Sample1", 1);
-    sampleSelector.addItem("Sample2", 2);
-    sampleSelector.setColour(juce::ComboBox::backgroundColourId, juce::Colours::transparentBlack);
-    sampleSelectorAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(
-            audioProcessor.getAPVTS(), "SAMPLE", sampleSelector);
-
     addAndMakeVisible(tabbedComponent);
     tabbedComponent.addTab("Filters", juce::Colours::transparentBlack, &filterComponents, false);
     tabbedComponent.addTab("ADSR", juce::Colours::transparentBlack, &adsrComponents, false);
     tabbedComponent.addTab("Reverb", juce::Colours::transparentBlack, &reverbComponent, false);
-
+    tabbedComponent.addTab("Instruments", juce::Colours::transparentBlack, &instruments, false);
 }
 UIComponents::~UIComponents()
 {
-
 }
 
 void UIComponents::paint(juce::Graphics& g)
@@ -49,5 +40,5 @@ void UIComponents::resized()
 
     tabbedComponent.setBoundsRelative(0.0f, 0.0f, 1.0f, 0.75f);
 
-    sampleSelector.setBoundsRelative(0.45, 0.5, 0.15, 0.06);
+
 }

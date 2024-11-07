@@ -13,6 +13,7 @@
 #include "FilterComponents.h"
 #include "AdsrComponents.h"
 #include "ReverbComponent.h"
+#include "Instruments.h"
 #include "../PluginProcessor.h"
 
 
@@ -34,11 +35,11 @@ private:
     AdsrComponents adsrComponents;
     ReverbComponent reverbComponent;
 
+    Instruments instruments;
+
     juce::TabbedComponent tabbedComponent;
 
-    juce::ComboBox sampleSelector;
-    juce::Label sampleSelectorLabel;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> sampleSelectorAttachment;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(UIComponents)
 };

@@ -1,0 +1,8 @@
+//
+// Created by sekiro on 06.11.24.
+//
+
+#ifndef SIMPLESAMPLER_INSTRUMENTS_H
+#define SIMPLESAMPLER_INSTRUMENTS_H
+
+#endif //SIMPLESAMPLER_INSTRUMENTS_H
