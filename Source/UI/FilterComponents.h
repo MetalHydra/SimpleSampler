@@ -16,9 +16,9 @@ public:
 
 private:
     SimpleSamplerAudioProcessor& audioProcessor;
-    juce::Slider lowpassCutOffSlider, highpassCutOffSlider;
-    juce::Label lowpassCutOffLabel, highpassCutOffLabel;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowpassCutOffAttachment, highpassCutOffAttachment;
+    juce::Slider centerFrequencySlider, QSlider;
+    juce::Label centerFrequencyLabel, QLabel;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> centerFrequencyAttachment, QAttachment;
 
     juce::ComboBox filterSelector;
     juce::Label filterSelectorLabel;

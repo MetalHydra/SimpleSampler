@@ -5,21 +5,21 @@
 
 FilterComponents::FilterComponents(SimpleSamplerAudioProcessor& p) : audioProcessor(p)
 {
-    lowpassCutOffSlider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
-    lowpassCutOffSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 40,20);
-    addAndMakeVisible(lowpassCutOffSlider);
-    lowpassCutOffLabel.setText("lowpass", juce::dontSendNotification);
-    lowpassCutOffLabel.setJustificationType(juce::Justification::centredTop);
-    lowpassCutOffLabel.attachToComponent(&lowpassCutOffSlider, false);
-    lowpassCutOffAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.getAPVTS(), "LOWPASS", lowpassCutOffSlider);
+    centerFrequencySlider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
+    centerFrequencySlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 40,20);
+    addAndMakeVisible(centerFrequencySlider);
+    centerFrequencyLabel.setText("Cutoff", juce::dontSendNotification);
+    centerFrequencyLabel.setJustificationType(juce::Justification::centredTop);
+    centerFrequencyLabel.attachToComponent(&centerFrequencySlider, false);
+    centerFrequencyAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.getAPVTS(), "CUTOFF", centerFrequencySlider);
 
-    highpassCutOffSlider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
-    highpassCutOffSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 40,20);
-    addAndMakeVisible(highpassCutOffSlider);
-    highpassCutOffLabel.setText("highpass", juce::dontSendNotification);
-    highpassCutOffLabel.setJustificationType(juce::Justification::centredTop);
-    highpassCutOffLabel.attachToComponent(&highpassCutOffSlider, false);
-    highpassCutOffAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.getAPVTS(), "HIGHPASS", highpassCutOffSlider);
+    QSlider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
+    QSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 40,20);
+    addAndMakeVisible(QSlider);
+    QLabel.setText("Q", juce::dontSendNotification);
+    QLabel.setJustificationType(juce::Justification::centredTop);
+    QLabel.attachToComponent(&QSlider, false);
+    QAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.getAPVTS(), "Q", QSlider);
 
     addAndMakeVisible(filterSelector);
     filterSelector.addItem("Lowpass", 1);
@@ -39,7 +39,7 @@ void FilterComponents::paint(juce::Graphics& g)
 
 void FilterComponents::resized()
 {
-    lowpassCutOffSlider.setBoundsRelative(0, 0.1, 0.1f, 0.18f);
-    highpassCutOffSlider.setBoundsRelative(0.06f, 0.1, 0.1f, 0.18f);
-    filterSelector.setBoundsRelative(0.025, 0.3, 0.13, 0.04);
+    centerFrequencySlider.setBoundsRelative(0, 0.1, 0.1f, 0.7f);
+    QSlider.setBoundsRelative(0.06f, 0.1, 0.1f, 0.7f);
+    filterSelector.setBoundsRelative(0.025, 0.8, 0.2, 0.06);
 }
