@@ -1,76 +1,49 @@
+#pragma once
 #include <JuceHeader.h>
 
 enum FilterType
 {
-    Lowpass,
-    Highpass,
-    Bandpass
+    LOWPASS,
+    HIGHPASS,
+    BANDPASS
 };
 
 struct FilterParameters
 {
-    float fc = 100.0f;
-    float Q = 0.707f;
-    float cutoff = 0.0f;
+    double fc = 1000.0f;
+    double Q = 0.707f;
+    double samplerate = 44100.0f;
+    FilterType filterType = LOWPASS;
 };
 
 struct filterCoefficients
 {
-    float a0 = 0.0f;
-    float a1 = 0.0f;
-    float a2 = 0.0f;
-    float b1 = 0.0f;
-    float b2 = 0.0f;
-    float c0 = 1.0f;
-    float d0 = 0.0f;
+    double a0 = 0.0f;
+    double a1 = 0.0f;
+    double a2 = 0.0f;
+    double b1 = 0.0f;
+    double b2 = 0.0f;
+    double c0 = 1.0f;
+    double d0 = 0.0f;
 };
 
-class BiQaudFilter
+class BiQuadFilter
 {
 public:
-    BiQaudFilter();
-    ~BiQaudFilter();
-    void setCutOffFrequency(float cutoff);
-    void setSamplingRate(float samplerate);
-    void updateParamters(FilterParameters& parameters);
+    BiQuadFilter();
+    ~BiQuadFilter();
+    void updateParamters(double cutoff, double Q, double samplerate, FilterType filterType);
     filterCoefficients& getFilterParamters();
-    void processBlock(juce::AudioBuffer<float>& buffer);
+    void ProcessBlock(juce::AudioBuffer<float>& buffer);
     void calculateCoefficients(FilterType filter);
 
 private:
     filterCoefficients coefficients;
-};
+    FilterParameters parameters;
+    std::vector<double> x1State;
+    std::vector<double> x2State;
+    std::vector<double> y1State;
+    std::vector<double> y2State;
 
-class LowpassFilter
-{
-public:
-    LowpassFilter();
-    ~LowpassFilter();
-    void setCutOffFrequency(float cutoff);
-    void setSamplingRate(float samplerate);
-    void processBlock(juce::AudioBuffer<float>& buffer);
-
-private:
-  float cutOff = 0.0f;
-  float samplerate = 44100.0f;
-  std::vector<float> dnBuffer;
-
-    JUCE_LEAK_DETECTOR(LowpassFilter)
-};
-
-class HighpassFilter
-{
-public:
-    HighpassFilter();
-    ~HighpassFilter();
-    void setCutOffFrequency(float cutoff);
-    void setSamplingRate(float samplerate);
-    void processBlock(juce::AudioBuffer<float>& buffer);
-
-private:
-    float cutOff = 0.0f;
-    float samplerate = 44100.0f;
-    std::vector<float> dnBuffer;
-
-    JUCE_LEAK_DETECTOR(HighpassFilter)
+    JUCE_LEAK_DETECTOR(BiQuadFilter)
 };
