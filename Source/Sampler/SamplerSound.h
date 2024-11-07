@@ -10,13 +10,6 @@ namespace nSamplerSound {
         float RGain = 0.0f;
     };
 
-    struct filterParameters
-    {
-        int filterIndex;
-        float lowpassCutOff;
-        float highpassCutOff;
-    };
-
     class SamplerSound : public SynthesiserSound
     {
         public:
@@ -36,7 +29,7 @@ namespace nSamplerSound {
 
             void setGainParameters(float lGain, float rGain, bool useLinearGain);
 
-            void setFilterParameters(int filterIndex, float lowpassCutOff, float highpassCutOff);
+            void setFilterParameters(double cutOff, double Q, double samplerate, FilterType filterType);
 
             void setAdsrParameters(float attack, float decay, float sustain, float release);
 
@@ -55,16 +48,15 @@ namespace nSamplerSound {
 
             String name;
             std::unique_ptr<juce::AudioBuffer<float>> data;
+            std::unique_ptr<juce::AudioBuffer<double>> doubleData;
             double sourceSampleRate;
             BigInteger midiNotes;
             int length = 0, midiRootNote = 0;
-
+            BiQuadFilter biquad;
             gainParameters gainParams;
-            filterParameters filterParams;
             juce::String filterType;
             juce::dsp::Reverb::Parameters reverbParams;
             juce::ADSR::Parameters adsrParams;
-
             juce::dsp::ProcessSpec spec;
 
 
@@ -89,20 +81,15 @@ namespace nSamplerSound {
 
         void applyGainToBuffer (juce::AudioBuffer<float>& buffer, float gain);
 
-        void renderNextBlock(juce::AudioBuffer<float> &, int startSample, int numSamples) override;
+        void renderNextBlock(juce::AudioBuffer<float>&, int startSample, int numSamples) override;
 
+        void renderNextBlock(juce::AudioBuffer<double>&, int startSample, int numSamples) override;
     private:
-        //==============================================================================
         friend class SamplerSound;
         double pitchRatio = 0;
         double sourceSamplePosition = 0;
-
-
-
         juce::ADSR adsr;
         juce::dsp::Reverb reverb;
-        LowpassFilter lowpass;
-        HighpassFilter highpass;
         std::atomic<int> filterIndex { 0 };
         // structure of each sample: { 2, (44100 * 4) + 4 };
         juce::AudioBuffer<float> voiceBuffer;

@@ -18,12 +18,12 @@ void Sampler::initializeSamplers()
 
         for (juce::DirectoryEntry entry : juce::RangedDirectoryIterator (pathToSampleFolders[i], false))
         {
-            DBG("entry: " + entry.getFile().getFileName());
+            //DBG("entry: " + entry.getFile().getFileName());
             auto file = entry.getFile();
             auto reader = audioFormatManager.createReaderFor(file);
             auto midiNumber = file.getFileNameWithoutExtension().getIntValue();
 
-            DBG("midi number: " + std::to_string(midiNumber));
+            //DBG("midi number: " + std::to_string(midiNumber));
             samplers[i]->addSound(new nSamplerSound::SamplerSound(file.getFileNameWithoutExtension(), *reader, BigInteger().setBit(midiNumber,true), midiNumber, 0.2, 0.2, 4.0));
             delete reader;
         }

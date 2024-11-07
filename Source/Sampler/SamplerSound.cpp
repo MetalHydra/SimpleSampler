@@ -19,8 +19,15 @@ nSamplerSound::SamplerSound::SamplerSound (const juce::String& soundName,
                        (int) (maxSampleLengthSeconds * sourceSampleRate));
 
         data.reset (new AudioBuffer<float> (jmin (2, (int) source.numChannels), length + 4));
-
+        doubleData.reset (new AudioBuffer<double> (jmin (2, (int) source.numChannels), length + 4));
         source.read (data.get(), 0, length + 4, 0, true, true);
+        for (int channel = 0; channel < data->getNumChannels(); ++channel)
+        {
+            for (int i = 0; i < data->getNumSamples(); ++i)
+            {
+                doubleData->setSample (channel, i, data->getSample (channel, i));
+            }
+        }
         adsrParams.attack = static_cast<float>(attackTimeSecs);
         adsrParams.release = static_cast<float>(releaseTimeSecs);
     }
@@ -54,11 +61,9 @@ void nSamplerSound::SamplerSound::setAdsrParameters(float attack, float decay, f
     adsrParams.release = release;
 }
 
-void nSamplerSound::SamplerSound::setFilterParameters(int filterIndex, float lowpassCutOff, float highpassCutOff)
+void nSamplerSound::SamplerSound::setFilterParameters(double cutOff, double Q, double samplerate, FilterType filterType)
 {
-    filterParams.filterIndex = filterIndex;
-    filterParams.lowpassCutOff = lowpassCutOff;
-    filterParams.highpassCutOff = highpassCutOff;
+    biquad.updateParamters(cutOff, Q, samplerate, filterType);
 }
 
 void nSamplerSound::SamplerSound::setReverbParameters(float room, float damp, float width, float wet, float dry)
@@ -148,10 +153,6 @@ void nSamplerSound::SamplerVoice::renderNextBlock (juce::AudioBuffer<float>& out
         float* outL = outputBuffer.getWritePointer (0, startSample);
         float* outR = outputBuffer.getNumChannels() > 1 ? outputBuffer.getWritePointer (1, startSample) : nullptr;
 
-        lowpass.setSamplingRate(playingSound->sourceSampleRate);
-        highpass.setSamplingRate(playingSound->sourceSampleRate);
-        lowpass.setCutOffFrequency(playingSound->filterParams.lowpassCutOff);
-        highpass.setCutOffFrequency(playingSound->filterParams.highpassCutOff);
 
         int cnt = 0;
         for (int sample = 0; sample < numSamples; ++sample)
@@ -188,30 +189,90 @@ void nSamplerSound::SamplerVoice::renderNextBlock (juce::AudioBuffer<float>& out
             cnt++;
         }
 
-        switch (playingSound->filterParams.filterIndex)
-        {
-            case 1:
-                lowpass.processBlock(voiceBuffer);
-                 DBG("Lowpass");
-                break;
-            case 2:
-                highpass.processBlock(voiceBuffer);
-                DBG("Highpass");
-                break;
-            case 3:
-                highpass.processBlock(voiceBuffer);
-                lowpass.processBlock(voiceBuffer);
-                DBG("Bandpass");
-                break;
-            default:
-                break;
-        }
+        playingSound->biquad.ProcessBlock(voiceBuffer);
 
         reverb.setParameters(playingSound->reverbParams);
         auto audioBlock = juce::dsp::AudioBlock<float>(voiceBuffer);
         auto context = juce::dsp::ProcessContextReplacing<float>(audioBlock);
 
         reverb.process(context);
+
+        voiceBuffer.applyGain(0, cnt, playingSound->gainParams.LGain);
+        if (outR != nullptr)
+        {
+            for(int sample = 0; sample < cnt; ++sample)
+            {
+                *outL++ += voiceBuffer.getSample(0, sample);
+                *outR++ += voiceBuffer.getSample(1, sample);
+            }
+        }
+        else
+        {
+            for(int sample = 0; sample < cnt; ++sample)
+            {
+                *outL++ += voiceBuffer.getSample(0, sample);
+            }
+        }
+    }
+}
+
+void nSamplerSound::SamplerVoice::renderNextBlock (juce::AudioBuffer<double>& outputBuffer, int startSample, int numSamples)
+{
+    voiceBuffer.setSize(outputBuffer.getNumChannels(), numSamples);
+    if (auto* playingSound = static_cast<SamplerSound*> (getCurrentlyPlayingSound().get()))
+    {
+        //adsr.setParameters(playingSound->samplerParams.getADSRParams());
+        auto& data = *playingSound->doubleData;
+
+        const double * const inL = data.getReadPointer (0);
+        const double* const inR = data.getNumChannels() > 1 ? data.getReadPointer (1) : nullptr;
+
+        double* outL = outputBuffer.getWritePointer (0, startSample);
+        double* outR = outputBuffer.getNumChannels() > 1 ? outputBuffer.getWritePointer (1, startSample) : nullptr;
+
+
+        int cnt = 0;
+        for (int sample = 0; sample < numSamples; ++sample)
+        {
+            auto pos = (int) sourceSamplePosition;
+            auto alpha = (float) (sourceSamplePosition - pos);
+            auto invAlpha = 1.0f - alpha;
+
+            double l = (inL[pos] * invAlpha + inL[pos + 1] * alpha);
+            double r = (inR != nullptr) ? (inR[pos] * invAlpha + inR[pos + 1] * alpha) : l;
+
+            auto envelopeValue = adsr.getNextSample();
+            l *=  envelopeValue;
+            r *=  envelopeValue;
+            if (outR != nullptr)
+            {
+                voiceBuffer.setSample(0, sample, l);
+                voiceBuffer.setSample(1, sample, r);
+                //*outL++ += l;
+                //*outR++ += r;
+            }
+            else
+            {
+                voiceBuffer.setSample(0, sample, l + r);
+                //*outL++ += (l + r) * 2.5f;
+            }
+            sourceSamplePosition += pitchRatio;
+
+            if (sourceSamplePosition > playingSound->length)
+            {
+                stopNote (0.0f, false);
+                break;
+            }
+            cnt++;
+        }
+
+        playingSound->biquad.ProcessBlock(voiceBuffer);
+
+        reverb.setParameters(playingSound->reverbParams);
+        //auto audioBlock = juce::dsp::AudioBlock<double>(voiceBuffer);
+        //auto context = juce::dsp::ProcessContextReplacing<double>(audioBlock);
+
+        //reverb.process(context);
 
         voiceBuffer.applyGain(0, cnt, playingSound->gainParams.LGain);
         if (outR != nullptr)

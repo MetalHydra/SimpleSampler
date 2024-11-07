@@ -31,7 +31,6 @@ private:
     int numVoices;
 
     juce::OwnedArray<juce::Synthesiser> samplers;
-    //std::vector<std::vector<int>> storedMidiNotes;  // used for coloring the playable notes on the Keyboard
     juce::AudioFormatManager audioFormatManager;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Sampler)
