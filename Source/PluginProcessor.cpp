@@ -94,6 +94,9 @@ void SimpleSamplerAudioProcessor::changeProgramName (int index, const juce::Stri
 
 void SimpleSamplerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+    auto precision = getProcessingPrecision();
+    DBG("precision: " + std::to_string(precision));
+    //setProcessingPrecision(ProcessingPrecision.doublePrecision);
     updateSamplerIndex();
     spec.sampleRate = sampleRate;
     spec.maximumBlockSize = samplesPerBlock;
@@ -140,6 +143,7 @@ bool SimpleSamplerAudioProcessor::isBusesLayoutSupported (const BusesLayout& lay
 
 void SimpleSamplerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
+    DBG("process float");
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -158,6 +162,7 @@ void SimpleSamplerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
 
     currentSamplers[currentSamplerIndex]->renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 }
+
 
 bool SimpleSamplerAudioProcessor::hasEditor() const
 {
@@ -214,8 +219,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleSamplerAudioProcessor:
     params.push_back(std::make_unique<juce::AudioParameterFloat>("DAMP", "Damp", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("WET", "Wet", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("WIDTH", "Width", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("LOWPASS", "LowpassCutOff", juce::NormalisableRange<float>(20.0f, 20000.0f), 10000.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHPASS", "HighpassCutOff", juce::NormalisableRange<float>(20.0f, 15000.0f), 1000.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("CUTOFF", "CUTOFF", juce::NormalisableRange<float>(1000.0f, 20000.0f), 10000.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("Q", "Q", juce::NormalisableRange<float>(0.0f, 20.0f), 0.707f));
 
     params.push_back(std::make_unique<juce::AudioParameterChoice>("FILTER", "Filter", filterChoices, 0));
 
@@ -235,11 +240,12 @@ void SimpleSamplerAudioProcessor::updateParams()
     auto wetLevel = APVTS.getRawParameterValue("WET")->load();
     auto width = APVTS.getRawParameterValue("WIDTH")->load();
 
-    auto lowpassCutOff = APVTS.getRawParameterValue("LOWPASS")->load();
-    auto highpassCutOff = APVTS.getRawParameterValue("HIGHPASS")->load();
+    auto cutoff = static_cast<double>(APVTS.getRawParameterValue("CUTOFF")->load());
+    auto Q = static_cast<double>(APVTS.getRawParameterValue("Q")->load());
+    auto samplerate = getSampleRate();
 
-    auto filterIndex = static_cast<int>(APVTS.getRawParameterValue("FILTER")->load());
-
+    auto filterIndex = APVTS.getRawParameterValue("FILTER")->load();
+    DBG("filter index: " + std::to_string(filterIndex));
     for (int i = 0; i < currentSamplers[currentSamplerIndex]->getNumSounds(); ++i)
     {
         if (auto sound = dynamic_cast<nSamplerSound::SamplerSound*>(currentSamplers[currentSamplerIndex]->getSound(i).get()))
@@ -248,7 +254,7 @@ void SimpleSamplerAudioProcessor::updateParams()
             sound->setGainParameters(gain, gain, false);
             sound->setReverbParameters(roomSize, damping, width, wetLevel, (1 - wetLevel));
             sound->setAdsrParameters(attack, decay, sustain, release);
-            sound->setFilterParameters(filterIndex+1, lowpassCutOff, highpassCutOff);
+            sound->setFilterParameters(cutoff, Q, samplerate, static_cast<FilterType>(filterIndex));
         }
     }
     //DBG("update params");

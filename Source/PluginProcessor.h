@@ -9,7 +9,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "Sampler/Sampler.h"
-
+#include "Filters/Filters.h"
 
 class SimpleSamplerAudioProcessor  : public juce::AudioProcessor,
                                         public juce::MidiKeyboardState::Listener,
@@ -22,6 +22,8 @@ public:
     juce::MidiKeyboardState& getKeyboardState();
 
     juce::AudioProcessorValueTreeState& getAPVTS() { return APVTS; }
+
+    //bool supportsDoublePrecisionProcessing() const { return true; }
 
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
@@ -65,6 +67,7 @@ public:
 private:
     const StringArray sampleChoices = { "Sample1", "Sample2" };
     const StringArray filterChoices = { "Lowpass", "Highpass", "Bandpass" };
+
     std::atomic<bool> shouldUpdate = { true };
     std::atomic<int> currentSamplerIndex = { 0 };
     juce::MidiKeyboardState keyboardState;
