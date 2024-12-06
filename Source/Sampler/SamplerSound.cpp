@@ -61,7 +61,7 @@ void nSamplerSound::SamplerSound::setAdsrParameters(float attack, float decay, f
     adsrParams.release = release;
 }
 
-void nSamplerSound::SamplerSound::setFilterParameters(double cutOff, double Q, double samplerate, FilterType filterType)
+void nSamplerSound::SamplerSound::setFilterParameters(float cutOff, float Q, float samplerate, FilterType filterType)
 {
     biquad.updateParamters(cutOff, Q, samplerate, filterType);
 }

@@ -143,7 +143,6 @@ bool SimpleSamplerAudioProcessor::isBusesLayoutSupported (const BusesLayout& lay
 
 void SimpleSamplerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
-    DBG("process float");
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -219,8 +218,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleSamplerAudioProcessor:
     params.push_back(std::make_unique<juce::AudioParameterFloat>("DAMP", "Damp", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("WET", "Wet", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("WIDTH", "Width", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("CUTOFF", "CUTOFF", juce::NormalisableRange<float>(1000.0f, 20000.0f), 10000.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("Q", "Q", juce::NormalisableRange<float>(0.0f, 20.0f), 0.707f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("CUTOFF", "CUTOFF", juce::NormalisableRange<float>(1000.0f, 20000.0f), 3400.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("Q", "Q", juce::NormalisableRange<float>(1.0f, 10.0f), 0.707f));
 
     params.push_back(std::make_unique<juce::AudioParameterChoice>("FILTER", "Filter", filterChoices, 0));
 
@@ -240,9 +239,9 @@ void SimpleSamplerAudioProcessor::updateParams()
     auto wetLevel = APVTS.getRawParameterValue("WET")->load();
     auto width = APVTS.getRawParameterValue("WIDTH")->load();
 
-    auto cutoff = static_cast<double>(APVTS.getRawParameterValue("CUTOFF")->load());
-    auto Q = static_cast<double>(APVTS.getRawParameterValue("Q")->load());
-    auto samplerate = getSampleRate();
+    auto cutoff = APVTS.getRawParameterValue("CUTOFF")->load();
+    auto Q = APVTS.getRawParameterValue("Q")->load();
+    auto samplerate = static_cast<float>(getSampleRate());
 
     auto filterIndex = APVTS.getRawParameterValue("FILTER")->load();
     DBG("filter index: " + std::to_string(filterIndex));

@@ -29,7 +29,7 @@ namespace nSamplerSound {
 
             void setGainParameters(float lGain, float rGain, bool useLinearGain);
 
-            void setFilterParameters(double cutOff, double Q, double samplerate, FilterType filterType);
+            void setFilterParameters(float cutOff, float Q, float samplerate, FilterType filterType);
 
             void setAdsrParameters(float attack, float decay, float sustain, float release);
 
