@@ -94,9 +94,6 @@ void SimpleSamplerAudioProcessor::changeProgramName (int index, const juce::Stri
 
 void SimpleSamplerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    auto precision = getProcessingPrecision();
-    DBG("precision: " + std::to_string(precision));
-    //setProcessingPrecision(ProcessingPrecision.doublePrecision);
     updateSamplerIndex();
     spec.sampleRate = sampleRate;
     spec.maximumBlockSize = samplesPerBlock;
@@ -253,10 +250,8 @@ void SimpleSamplerAudioProcessor::updateParams()
             sound->setGainParameters(gain, gain, false);
             sound->setReverbParameters(roomSize, damping, width, wetLevel, (1 - wetLevel));
             sound->setAdsrParameters(attack, decay, sustain, release);
-            sound->setFilterParameters(cutoff, Q, samplerate, static_cast<FilterType>(filterIndex));
         }
     }
-    //DBG("update params");
 }
 
 void SimpleSamplerAudioProcessor::updateSamplerIndex()

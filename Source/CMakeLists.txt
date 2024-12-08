@@ -73,9 +73,10 @@ target_sources(SimpleSampler
         PluginEditor.cpp
         PluginProcessor.cpp
         UI/UIComponents.cpp
-        UI/FilterComponents.cpp
+        UI/FilterComponent.cpp
         UI/AdsrComponents.cpp
         UI/ReverbComponent.cpp
+        UI/EQ.cpp
         UI/Instruments.cpp
         Sampler/Sampler.cpp
         Sampler/SamplerSound.cpp
@@ -120,4 +121,4 @@ target_link_libraries(SimpleSampler
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags
-        fftw::fftw)
+        )

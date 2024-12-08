@@ -13,7 +13,6 @@ Instruments::Instruments(SimpleSamplerAudioProcessor& p) : processor(p)
     sampleSelectorAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(processor.getAPVTS(), "SAMPLE", sampleSelector);
 }
 
-
 Instruments::~Instruments()
 {
 }
@@ -21,7 +20,6 @@ Instruments::~Instruments()
 void Instruments::paint(juce::Graphics& g)
 {
 }
-
 
 void Instruments::resized()
 {

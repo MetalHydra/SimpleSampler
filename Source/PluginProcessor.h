@@ -9,7 +9,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "Sampler/Sampler.h"
-#include "Filters/Filters.h"
+
 
 class SimpleSamplerAudioProcessor  : public juce::AudioProcessor,
                                         public juce::MidiKeyboardState::Listener,
@@ -22,8 +22,6 @@ public:
     juce::MidiKeyboardState& getKeyboardState();
 
     juce::AudioProcessorValueTreeState& getAPVTS() { return APVTS; }
-
-    //bool supportsDoublePrecisionProcessing() const { return true; }
 
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
@@ -57,6 +55,8 @@ public:
     void handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity) override;
 
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+
+    void addParameterToTree(std::string parameterName);
 
     void updateParams();
 

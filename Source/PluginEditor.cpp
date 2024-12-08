@@ -17,8 +17,8 @@ SimpleSamplerAudioProcessorEditor::SimpleSamplerAudioProcessorEditor (SimpleSamp
     // editor's size to whatever you need it to be.
 
     addAndMakeVisible (mainComponents);
-
-    setSize (1200, 600);
+    setResizable(true, true);
+    setSize (1300, 700);
 }
 
 SimpleSamplerAudioProcessorEditor::~SimpleSamplerAudioProcessorEditor()

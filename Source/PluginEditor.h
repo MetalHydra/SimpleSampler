@@ -11,22 +11,15 @@
 #include "PluginProcessor.h"
 #include "UI/UIComponents.h"
 
-//==============================================================================
-/**
-*/
 class SimpleSamplerAudioProcessorEditor  : public juce::AudioProcessorEditor
 {
-public:
-    SimpleSamplerAudioProcessorEditor (SimpleSamplerAudioProcessor&);
-    ~SimpleSamplerAudioProcessorEditor() override;
+    public:
+        SimpleSamplerAudioProcessorEditor (SimpleSamplerAudioProcessor&);
+        ~SimpleSamplerAudioProcessorEditor() override;
+        void paint (juce::Graphics&) override;
+        void resized() override;
+    private:
+        UIComponents mainComponents;
 
-    //==============================================================================
-    void paint (juce::Graphics&) override;
-    void resized() override;
-
-private:
-    //SimpleSamplerAudioProcessor& audioProcessor;
-    UIComponents mainComponents;
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleSamplerAudioProcessorEditor)
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleSamplerAudioProcessorEditor)
 };

@@ -3,9 +3,18 @@
 
 enum FilterType
 {
-    LOWPASS,
-    HIGHPASS,
-    BANDPASS
+    LOWPASS1stOrder,
+    HIGHPASS1stOrder,
+    LOWPASS2ndOrder,
+    HIGHPASS2ndOrder,
+    BANDPASS2ndOrder,
+    BANDSTOP2ndOrder,
+    LOWPASSBUTTERWORTH,
+    HIGHPASSBUTTERWORTH,
+    BANDPASSBUTTERWORTH,
+    BANDSTOPBUTTERWORTH,
+    AllPASSFFILTER,
+    ALPASSFILTER2ndOrder
 };
 
 struct FilterParameters
@@ -13,7 +22,7 @@ struct FilterParameters
     float fc = 1000.0f;
     float Q = 0.707f;
     float samplerate = 44100.0f;
-    FilterType filterType = LOWPASS;
+    FilterType filterType = LOWPASS2ndOrder;
 };
 
 struct filterCoefficients
@@ -35,7 +44,7 @@ public:
     void updateParamters(float cutoff, float Q, float samplerate, FilterType filterType);
     filterCoefficients& getFilterParamters();
     void ProcessBlock(juce::AudioBuffer<float>& buffer);
-    void calculateCoefficients(FilterType filter);
+    virtual void calculateCoefficients(FilterType filter);
     void reset();
 
 private:

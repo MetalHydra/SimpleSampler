@@ -19,12 +19,35 @@ void BiQuadFilter::updateParamters(float cutoff, float Q, float samplerate, Filt
 }
 
 void BiQuadFilter::calculateCoefficients(FilterType filter) {
-
     switch (filter)
     {
-        case LOWPASS:
+        case LOWPASS1stOrder:
         {
-            DBG("CALCULATE LOWPASS");
+            float theta = 2.0f * juce::MathConstants<float>::pi * parameters.fc / parameters.samplerate;
+            float gamma = std::cos(theta) / (1 + std::sin(theta));
+            coefficients.a0 = (1.0f - gamma) / 2.0f;
+            coefficients.a1 = coefficients.a0;
+            coefficients.a2 = 0.0f;
+            coefficients.b1 = -gamma;
+            coefficients.b2 = 0.0f;
+            coefficients.c0 = 1.0f;
+            coefficients.d0 = 0.0f;
+            break;
+        }
+        case HIGHPASS1stOrder: {
+            float theta = 2.0f * juce::MathConstants<float>::pi * parameters.fc / parameters.samplerate;
+            float gamma = std::cos(theta) / (1 + std::sin(theta));
+            coefficients.a0 = (1.0f + gamma) / 2.0f;
+            coefficients.a1 = -coefficients.a0;
+            coefficients.a2 = 0.0f;
+            coefficients.b1 = -gamma;
+            coefficients.b2 = 0.0f;
+            coefficients.c0 = 1.0f;
+            coefficients.d0 = 0.0f;
+            break;
+        }
+        case LOWPASS2ndOrder:
+        {
             float theta = 2.0f * juce::MathConstants<float>::pi * parameters.fc / parameters.samplerate;
             float d = 1.0f / parameters.Q;
             float num = 1.0f - (d/2.0f) * std::sin(theta);
@@ -38,9 +61,8 @@ void BiQuadFilter::calculateCoefficients(FilterType filter) {
             coefficients.b2 = 2.0f * beta;
             break;
         }
-        case HIGHPASS:
+        case HIGHPASS2ndOrder:
         {
-            DBG("CALCULATE HIGHPASS");
             float theta = 2.0f * juce::MathConstants<float>::pi * parameters.fc / parameters.samplerate;
             float d = 1.0f / parameters.Q;
             float num = 1.0f - (d/2.0f) * std::sin(theta);
@@ -54,9 +76,8 @@ void BiQuadFilter::calculateCoefficients(FilterType filter) {
             coefficients.b2 = 2.0f * beta;
             break;
         }
-        case BANDPASS:
+        case BANDPASS2ndOrder:
         {
-            DBG("CALCULATE BANDBPASS");
             float K = std::tan((juce::MathConstants<float>::pi * parameters.fc) / parameters.samplerate);
             float delta = (K*K*parameters.Q) + K + parameters.Q;
             coefficients.a0 = K / delta;
@@ -66,7 +87,76 @@ void BiQuadFilter::calculateCoefficients(FilterType filter) {
             coefficients.b2 = ((K*K*parameters.Q)-K+parameters.Q) / delta;
             break;
         }
-
+        case BANDSTOP2ndOrder: {
+            float K = std::tan((juce::MathConstants<float>::pi * parameters.fc) / parameters.samplerate);
+            float delta = (K*K*parameters.Q) + K + parameters.Q;
+            coefficients.a0 = parameters.Q*(K*K+1.0f) / delta;
+            coefficients.a1 = parameters.Q*(K*K-1.0f) / delta;
+            coefficients.a2 = coefficients.a0;
+            coefficients.b1 = coefficients.a1;
+            coefficients.b2 = ((K*K*parameters.Q)-K+parameters.Q) / delta;
+        }
+        case LOWPASSBUTTERWORTH:
+        {
+            float C = 1.0f /  std::tan((juce::MathConstants<float>::pi * parameters.fc) / parameters.samplerate);
+            coefficients.a0 = 1.0f / (1.0f + std::sqrt(2*C) + C*C);
+            coefficients.a1 = 2.0f * coefficients.a0;
+            coefficients.a2 = coefficients.a0;
+            coefficients.b1 = 2.0f * coefficients.a0 * (1.0f - C*C);
+            coefficients.b2 = coefficients.a0 * (1.0f - std::sqrt(2*C) + C*C);
+            break;
+        }
+        case HIGHPASSBUTTERWORTH:
+        {
+            float C = 1.0f /  std::tan((juce::MathConstants<float>::pi * parameters.fc) / parameters.samplerate);
+            coefficients.a0 = 1.0f / (1.0f + std::sqrt(2*C) + C*C);
+            coefficients.a1 = -2.0f * coefficients.a0;
+            coefficients.a2 = coefficients.a0;
+            coefficients.b1 = 2.0f * coefficients.a0 * (C*C - 1.0f);
+            coefficients.b2 = coefficients.a0 * (1.0f - std::sqrt(2*C) + C*C);
+            break;
+        }
+        case BANDPASSBUTTERWORTH:
+        {
+            float BW = parameters.fc / parameters.Q;
+            float C = 1 / std::tan((juce::MathConstants<float>::pi * parameters.fc * BW) / parameters.samplerate);
+            float D = 2.0f * std::cos(2.0f * juce::MathConstants<float>::pi * parameters.fc / parameters.samplerate);
+            coefficients.a0 = 1.0f / (1.0f + C);
+            coefficients.a1 = 0.0;
+            coefficients.a2 = -coefficients.a0;
+            coefficients.b1 = -coefficients.a0*(C*D);
+            coefficients.b2 = coefficients.a0 * (C - 1.0f);
+        }
+        case BANDSTOPBUTTERWORTH:
+        {
+            float BW = parameters.fc / parameters.Q;
+            float C =  std::tan((juce::MathConstants<float>::pi * parameters.fc * BW) / parameters.samplerate);
+            float D = 2.0f * std::cos(2.0f * juce::MathConstants<float>::pi * parameters.fc / parameters.samplerate);
+            coefficients.a0 = 1.0f / (1.0f + C);
+            coefficients.a1 = -coefficients.a0 * D;
+            coefficients.a2 = coefficients.a0;
+            coefficients.b1 = -coefficients.a0*D;
+            coefficients.b2 = coefficients.a0 * (1.0f- C);
+        }
+        case AllPASSFFILTER:
+        {
+            float alpha = (std::tan(juce::MathConstants<float>::pi * parameters.fc / parameters.samplerate) -1) / (std::tan(juce::MathConstants<float>::pi * parameters.fc / parameters.samplerate) +1);
+            coefficients.a0 = alpha;
+            coefficients.a1 = 1.0f;
+            coefficients.a2 = 0.0;
+            coefficients.b1 = alpha;
+            coefficients.b2 = 0.0;
+        }
+        case ALPASSFILTER2ndOrder: {
+            float BW = parameters.fc / parameters.Q;
+            float alpha = (std::tan(((BW * juce::MathConstants<float>::pi) / parameters.samplerate))-1) / (std::tan(((BW * juce::MathConstants<float>::pi) / parameters.samplerate))+1);
+            float beta = -std::cos(2.0f * juce::MathConstants<float>::pi * parameters.fc / parameters.samplerate);
+            coefficients.a0 = -alpha;
+            coefficients.a1 = beta * (1 - alpha);
+            coefficients.a2 = 1.0f;
+            coefficients.b1 = coefficients.a1;
+            coefficients.b2 = -alpha;
+        }
     }
 }
 
@@ -80,26 +170,15 @@ void BiQuadFilter::reset()
 
 void BiQuadFilter::ProcessBlock(juce::AudioBuffer<float>& buffer)
 {
-    //LeftChannel 01, RightChannel 2,3
-    /*x1State.resize(buffer.getNumChannels(), 0.0f);
-    x2State.resize(buffer.getNumChannels(), 0.0f);
-    y1State.resize(buffer.getNumChannels(), 0.0f);
-    y2State.resize(buffer.getNumChannels(), 0.0f);*/
     for (auto channel = 0; channel < buffer.getNumChannels(); ++channel)
     {
         auto out = buffer.getWritePointer(channel);
         for (auto i = 0; i < buffer.getNumSamples(); ++i)
         {
             const auto inputSample = out[i];
-            //DBG("size of x1, x2, y1, y2: " << x1State.size() << ", " << x2State.size() << ", " << y1State.size() << ", " << y2State.size());
             const auto filterdSample = coefficients.a0 * inputSample + x1State[channel];
-            //const auto filtredSample = coefficients.a0 * inputSample + coefficients.a1 * x1State[channel] + coefficients.a2 * x2State[channel] - coefficients.b1 * y1State[channel] - coefficients.b2 * y2State[channel];
-            //const auto filteredSample = coefficients.a0 * inputSample + coefficients.a1 * x1State[channel] - coefficients.b1 * y1State[channel]; //#auto filteredSample = coefficients.a0 * inputSample + coefficients.a1 * x1State[channel];
             x1State[channel] = coefficients.a1 * inputSample - coefficients.b1 * filterdSample + x2State[channel];
             x2State[channel] = coefficients.a2 * inputSample - coefficients.b2 * filterdSample;
-
-            //y2State[channel] = y1State[channel];
-            //y1State[channel] = filterdSample;
             out[i] = filterdSample;
         }
     }

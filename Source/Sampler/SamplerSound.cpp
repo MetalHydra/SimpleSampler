@@ -61,11 +61,6 @@ void nSamplerSound::SamplerSound::setAdsrParameters(float attack, float decay, f
     adsrParams.release = release;
 }
 
-void nSamplerSound::SamplerSound::setFilterParameters(float cutOff, float Q, float samplerate, FilterType filterType)
-{
-    biquad.updateParamters(cutOff, Q, samplerate, filterType);
-}
-
 void nSamplerSound::SamplerSound::setReverbParameters(float room, float damp, float width, float wet, float dry)
 {
     reverbParams.roomSize = room;
@@ -188,9 +183,6 @@ void nSamplerSound::SamplerVoice::renderNextBlock (juce::AudioBuffer<float>& out
             }
             cnt++;
         }
-
-        playingSound->biquad.ProcessBlock(voiceBuffer);
-
         reverb.setParameters(playingSound->reverbParams);
         auto audioBlock = juce::dsp::AudioBlock<float>(voiceBuffer);
         auto context = juce::dsp::ProcessContextReplacing<float>(audioBlock);
@@ -265,8 +257,6 @@ void nSamplerSound::SamplerVoice::renderNextBlock (juce::AudioBuffer<double>& ou
             }
             cnt++;
         }
-
-        playingSound->biquad.ProcessBlock(voiceBuffer);
 
         reverb.setParameters(playingSound->reverbParams);
         //auto audioBlock = juce::dsp::AudioBlock<double>(voiceBuffer);

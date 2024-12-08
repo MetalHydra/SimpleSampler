@@ -1,5 +1,5 @@
 #include <JuceHeader.h>
-#include "../Filters/Filters.h"
+
 #include "juce_dsp/juce_dsp.h"
 
 namespace nSamplerSound {
@@ -29,14 +29,11 @@ namespace nSamplerSound {
 
             void setGainParameters(float lGain, float rGain, bool useLinearGain);
 
-            void setFilterParameters(float cutOff, float Q, float samplerate, FilterType filterType);
-
             void setAdsrParameters(float attack, float decay, float sustain, float release);
 
             void setReverbParameters(float room, float damp, float width, float wet, float dry);
 
             void setSpec(juce::dsp::ProcessSpec& spec) { this->spec = spec; }
-
 
         bool appliesToNote(int midiNoteNumber) override;
 
@@ -52,7 +49,6 @@ namespace nSamplerSound {
             double sourceSampleRate;
             BigInteger midiNotes;
             int length = 0, midiRootNote = 0;
-            BiQuadFilter biquad;
             gainParameters gainParams;
             juce::String filterType;
             juce::dsp::Reverb::Parameters reverbParams;
