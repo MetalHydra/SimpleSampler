@@ -19,11 +19,10 @@ private:
     std::string centerFrequencyAttachmentName = "CUTOFF";
     std::string QAttachmentName = "Q";
     std::string filterSelectorNameAttachmentName = "FILTER";
-    juce::FlexBox itembox;
+    juce::GroupComponent filterGroup;
     SimpleSamplerAudioProcessor& audioProcessor;
     juce::Slider centerFrequencySlider, QSlider;
     juce::ComboBox filterSelector;
-    juce::GroupComponent filterGroup;
     juce::Label centerFrequencyLabel, QLabel, filterSelectorLabel;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> centerFrequencyAttachment, QAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment>  filterSelectorAttachment;

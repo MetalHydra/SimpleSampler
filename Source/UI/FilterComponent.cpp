@@ -5,18 +5,21 @@
 
 FilterComponent::FilterComponent(SimpleSamplerAudioProcessor& p, std::string name) : audioProcessor(p), name(std::move(name))
 {
+
     addAndMakeVisible(filterGroup);
-    centerFrequencySlider.setSliderStyle(juce::Slider::SliderStyle::LinearHorizontal);
-    centerFrequencySlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100,60);
+
+
     addAndMakeVisible(centerFrequencySlider);
+    centerFrequencySlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalDrag);
+
     centerFrequencyLabel.setText("Cutoff", juce::dontSendNotification);
     centerFrequencyLabel.setJustificationType(juce::Justification::centredTop);
     centerFrequencyLabel.attachToComponent(&centerFrequencySlider, false);
     centerFrequencyAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.getAPVTS(), centerFrequencyAttachmentName, centerFrequencySlider);
 
-    QSlider.setSliderStyle(juce::Slider::SliderStyle::LinearHorizontal);
-    QSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100,60);
     addAndMakeVisible(QSlider);
+    QSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalDrag);
+
     QLabel.setText("Q", juce::dontSendNotification);
     QLabel.setJustificationType(juce::Justification::centredTop);
     QLabel.attachToComponent(&QSlider, false);
@@ -28,6 +31,8 @@ FilterComponent::FilterComponent(SimpleSamplerAudioProcessor& p, std::string nam
     filterSelector.addItem("Bandpass", 3);
     filterSelector.setColour(juce::ComboBox::backgroundColourId, juce::Colours::transparentBlack);
     filterSelectorAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.getAPVTS(), filterSelectorNameAttachmentName, filterSelector);
+
+    addAndMakeVisible(centerFrequencyLabel);
 }
 
 FilterComponent::~FilterComponent()
@@ -36,14 +41,21 @@ FilterComponent::~FilterComponent()
 
 void FilterComponent::paint(juce::Graphics& g)
 {
-    DBG("size of window" + std::to_string(getWidth()) + ", " + std::to_string(getHeight()));
+
 }
 
 void FilterComponent::resized()
 {
-    filterGroup.setBounds(0, 0, getWidth(), getHeight());
-    filterSelector.setBoundsRelative(0.1f, 0.1f, 0.8f, 0.1f);
-    centerFrequencySlider.setBoundsRelative(0.1f, 0.35f, 0.8f, 0.2f);
-    QSlider.setBoundsRelative(0.1f, 0.6f, 0.8f, 0.2f);
+    DBG("size of window" + std::to_string(getWidth()) + ", " + std::to_string(getHeight()));
+    filterGroup.setText(name);
+    filterGroup.setTextLabelPosition(juce::Justification::centredTop);
+
+    filterGroup.setBounds(0,0,getWidth(),getHeight());
+    filterSelector.setBoundsRelative(0.05f, 0.1f, 0.9f, 0.15f);
+    centerFrequencySlider.setBoundsRelative(0.0f, 0.45f, 0.51f, 0.51f);
+    centerFrequencySlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50,30);
+    QSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50,30);
+
+    QSlider.setBoundsRelative(0.5f, 0.45f, 0.51f, 0.51f);
     //filterGroup.setBoundsRelative(0.0f, 0.0f, 1.0f, 1.0f);
 }
