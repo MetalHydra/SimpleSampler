@@ -67,13 +67,12 @@ public:
 private:
     const StringArray sampleChoices = { "Sample1", "Sample2" };
     const StringArray filterChoices = { "Lowpass", "Highpass", "Bandpass" };
-
-    std::atomic<bool> shouldUpdate = { true };
-    std::atomic<int> currentSamplerIndex = { 0 };
     juce::MidiKeyboardState keyboardState;
     juce::AudioProcessorValueTreeState APVTS;
     Sampler sampler = Sampler("Sampler", 4);
     juce::OwnedArray<juce::Synthesiser>& currentSamplers = sampler.getSamplers();
+    std::atomic<bool> shouldUpdate = { true };
+    std::atomic<int> currentSamplerIndex = { 0 };
     juce::dsp::ProcessSpec spec;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleSamplerAudioProcessor)
 };

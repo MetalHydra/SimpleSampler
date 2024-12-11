@@ -21,6 +21,8 @@ public:
 
     juce::OwnedArray<juce::Synthesiser>& getSamplers() { return samplers; }
 
+    const juce::Array<int> getSampleMidiNumbers(int index) { return sampleMidiNumbers[index]; }
+
 
 
 private:
@@ -32,6 +34,7 @@ private:
 
     juce::OwnedArray<juce::Synthesiser> samplers;
     juce::AudioFormatManager audioFormatManager;
+    juce::Array<juce::Array<int>> sampleMidiNumbers;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Sampler)
 };

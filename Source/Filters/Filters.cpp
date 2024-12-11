@@ -32,6 +32,7 @@ void BiQuadFilter::calculateCoefficients(FilterType filter) {
             coefficients.b2 = 0.0f;
             coefficients.c0 = 1.0f;
             coefficients.d0 = 0.0f;
+            coefficients.order = 1;
             break;
         }
         case HIGHPASS1stOrder: {
@@ -44,6 +45,7 @@ void BiQuadFilter::calculateCoefficients(FilterType filter) {
             coefficients.b2 = 0.0f;
             coefficients.c0 = 1.0f;
             coefficients.d0 = 0.0f;
+            coefficients.order = 1;
             break;
         }
         case LOWPASS2ndOrder:
@@ -59,6 +61,7 @@ void BiQuadFilter::calculateCoefficients(FilterType filter) {
             coefficients.a2 = coefficients.a0;
             coefficients.b1 = -2.0f *gamma;
             coefficients.b2 = 2.0f * beta;
+            coefficients.order = 2;
             break;
         }
         case HIGHPASS2ndOrder:
@@ -74,6 +77,7 @@ void BiQuadFilter::calculateCoefficients(FilterType filter) {
             coefficients.a2 = coefficients.a0;
             coefficients.b1 = -2.0f *gamma;
             coefficients.b2 = 2.0f * beta;
+            coefficients.order = 2;
             break;
         }
         case BANDPASS2ndOrder:
@@ -85,6 +89,7 @@ void BiQuadFilter::calculateCoefficients(FilterType filter) {
             coefficients.a2 = -K/delta;
             coefficients.b1 = ((2.0f * parameters.Q)*(K*K-1)) / delta;
             coefficients.b2 = ((K*K*parameters.Q)-K+parameters.Q) / delta;
+            coefficients.order = 2;
             break;
         }
         case BANDSTOP2ndOrder: {
@@ -95,6 +100,7 @@ void BiQuadFilter::calculateCoefficients(FilterType filter) {
             coefficients.a2 = coefficients.a0;
             coefficients.b1 = coefficients.a1;
             coefficients.b2 = ((K*K*parameters.Q)-K+parameters.Q) / delta;
+            coefficients.order = 2;
         }
         case LOWPASSBUTTERWORTH:
         {
@@ -104,6 +110,7 @@ void BiQuadFilter::calculateCoefficients(FilterType filter) {
             coefficients.a2 = coefficients.a0;
             coefficients.b1 = 2.0f * coefficients.a0 * (1.0f - C*C);
             coefficients.b2 = coefficients.a0 * (1.0f - std::sqrt(2*C) + C*C);
+            coefficients.order = 2;
             break;
         }
         case HIGHPASSBUTTERWORTH:
@@ -114,6 +121,7 @@ void BiQuadFilter::calculateCoefficients(FilterType filter) {
             coefficients.a2 = coefficients.a0;
             coefficients.b1 = 2.0f * coefficients.a0 * (C*C - 1.0f);
             coefficients.b2 = coefficients.a0 * (1.0f - std::sqrt(2*C) + C*C);
+            coefficients.order = 2;
             break;
         }
         case BANDPASSBUTTERWORTH:
@@ -126,6 +134,7 @@ void BiQuadFilter::calculateCoefficients(FilterType filter) {
             coefficients.a2 = -coefficients.a0;
             coefficients.b1 = -coefficients.a0*(C*D);
             coefficients.b2 = coefficients.a0 * (C - 1.0f);
+            coefficients.order = 2;
         }
         case BANDSTOPBUTTERWORTH:
         {
@@ -137,6 +146,7 @@ void BiQuadFilter::calculateCoefficients(FilterType filter) {
             coefficients.a2 = coefficients.a0;
             coefficients.b1 = -coefficients.a0*D;
             coefficients.b2 = coefficients.a0 * (1.0f- C);
+            coefficients.order = 2;
         }
         case AllPASSFFILTER:
         {
@@ -146,6 +156,7 @@ void BiQuadFilter::calculateCoefficients(FilterType filter) {
             coefficients.a2 = 0.0;
             coefficients.b1 = alpha;
             coefficients.b2 = 0.0;
+            coefficients.order = 1;
         }
         case ALPASSFILTER2ndOrder: {
             float BW = parameters.fc / parameters.Q;
@@ -156,6 +167,7 @@ void BiQuadFilter::calculateCoefficients(FilterType filter) {
             coefficients.a2 = 1.0f;
             coefficients.b1 = coefficients.a1;
             coefficients.b2 = -alpha;
+            coefficients.order = 2;
         }
     }
 }

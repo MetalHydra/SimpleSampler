@@ -22,7 +22,9 @@ void EQ::paint(juce::Graphics &g)
 
 void EQ::resized()
 {
-    DBG("filter width" + String(filterBand1.getWidth()));
-    filterBand1.setBoundsRelative(0.1f,  0.2f, 0.2f, 0.35f);
-    filterBand2.setBoundsRelative(0.4f, 0.2f, 0.1f, 0.4f);
+    filterBand1.setBoundsRelative(0.01f, 0.55f, 0.19f, 0.4f);
+    filterBand2.setBoundsRelative(0.01f + 0.17f + 0.025f, 0.55f, 0.19f, 0.4f);
+    filterBand3.setBoundsRelative(0.01f + 2 * (0.17f + 0.025f), 0.55f, 0.19f, 0.4f);
+    filterBand4.setBoundsRelative(0.01f + 3 * (0.17f + 0.025f), 0.55f, 0.19f, 0.4f);
+    filterBand5.setBoundsRelative(0.01f + 4 * (0.17f + 0.025f), 0.55f, 0.19f, 0.4f);
 }

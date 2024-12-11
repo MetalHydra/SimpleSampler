@@ -15,12 +15,12 @@ public:
     void resized() override;
 
 private:
-    std::string name = "Filter";
-    std::string centerFrequencyAttachmentName = "CUTOFF";
-    std::string QAttachmentName = "Q";
-    std::string filterSelectorNameAttachmentName = "FILTER";
-    juce::GroupComponent filterGroup;
     SimpleSamplerAudioProcessor& audioProcessor;
+    const std::string name;
+    std::string centerFrequencyAttachmentName;
+    std::string QAttachmentName;
+    std::string filterSelectorNameAttachmentName;
+    juce::GroupComponent filterGroup;
     juce::Slider centerFrequencySlider, QSlider;
     juce::ComboBox filterSelector;
     juce::Label centerFrequencyLabel, QLabel, filterSelectorLabel;

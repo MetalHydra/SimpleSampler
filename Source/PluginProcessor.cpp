@@ -215,10 +215,22 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleSamplerAudioProcessor:
     params.push_back(std::make_unique<juce::AudioParameterFloat>("DAMP", "Damp", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("WET", "Wet", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("WIDTH", "Width", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("CUTOFF", "CUTOFF", juce::NormalisableRange<float>(1000.0f, 20000.0f), 3400.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("Q", "Q", juce::NormalisableRange<float>(1.0f, 10.0f), 0.707f));
 
-    params.push_back(std::make_unique<juce::AudioParameterChoice>("FILTER", "Filter", filterChoices, 0));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("CutoffBand1", "CutoffBand1", juce::NormalisableRange<float>(1000.0f, 20000.0f), 3400.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("CutoffBand2", "CutoffBand2", juce::NormalisableRange<float>(1000.0f, 20000.0f), 3400.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("CutoffBand3", "CutoffBand3", juce::NormalisableRange<float>(1000.0f, 20000.0f), 3400.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("CutoffBand4", "CutoffBand4", juce::NormalisableRange<float>(1000.0f, 20000.0f), 3400.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("CutoffBand5", "CutoffBand5", juce::NormalisableRange<float>(1000.0f, 20000.0f), 3400.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("QBand1", "QBand1", juce::NormalisableRange<float>(1.0f, 10.0f), 0.707f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("QBand2", "QBand2", juce::NormalisableRange<float>(1.0f, 10.0f), 0.707f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("QBand3", "QBand3", juce::NormalisableRange<float>(1.0f, 10.0f), 0.707f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("QBand4", "QBand4", juce::NormalisableRange<float>(1.0f, 10.0f), 0.707f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("QBand5", "QBand5", juce::NormalisableRange<float>(1.0f, 10.0f), 0.707f));
+    params.push_back(std::make_unique<juce::AudioParameterChoice>("FilterBand1", "FilterBand1", filterChoices, 0));
+    params.push_back(std::make_unique<juce::AudioParameterChoice>("FilterBand2", "FilterBand2", filterChoices, 0));
+    params.push_back(std::make_unique<juce::AudioParameterChoice>("FilterBand3", "FilterBand3", filterChoices, 0));
+    params.push_back(std::make_unique<juce::AudioParameterChoice>("FilterBand4", "FilterBand4", filterChoices, 0));
+    params.push_back(std::make_unique<juce::AudioParameterChoice>("FilterBand5", "FilterBand5", filterChoices, 0));
 
     return { params.begin(), params.end() };
 }
@@ -236,12 +248,12 @@ void SimpleSamplerAudioProcessor::updateParams()
     auto wetLevel = APVTS.getRawParameterValue("WET")->load();
     auto width = APVTS.getRawParameterValue("WIDTH")->load();
 
-    auto cutoff = APVTS.getRawParameterValue("CUTOFF")->load();
-    auto Q = APVTS.getRawParameterValue("Q")->load();
-    auto samplerate = static_cast<float>(getSampleRate());
+    //auto cutoff = APVTS.getRawParameterValue("CUTOFF")->load();
+    //auto Q = APVTS.getRawParameterValue("Q")->load();
+    //auto samplerate = static_cast<float>(getSampleRate());
 
-    auto filterIndex = APVTS.getRawParameterValue("FILTER")->load();
-    DBG("filter index: " + std::to_string(filterIndex));
+    //auto filterIndex = APVTS.getRawParameterValue("FILTER")->load();
+    //DBG("filter index: " + std::to_string(filterIndex));
     for (int i = 0; i < currentSamplers[currentSamplerIndex]->getNumSounds(); ++i)
     {
         if (auto sound = dynamic_cast<nSamplerSound::SamplerSound*>(currentSamplers[currentSamplerIndex]->getSound(i).get()))
@@ -254,10 +266,14 @@ void SimpleSamplerAudioProcessor::updateParams()
     }
 }
 
+// update sampler index and get current notes for recoloring the kayboard
 void SimpleSamplerAudioProcessor::updateSamplerIndex()
 {
     auto value = APVTS.getRawParameterValue("SAMPLE")->load();
     currentSamplerIndex = static_cast<int>(value);
+    DBG("update sampler");
+    auto midiNotes = sampler.getSampleMidiNumbers(currentSamplerIndex);
+    DBG("changed sampler " + std::to_string(midiNotes.size()));
 }
 
 void SimpleSamplerAudioProcessor::valueTreePropertyChanged(ValueTree &treeWhosePropertyHasChanged, const Identifier &property)

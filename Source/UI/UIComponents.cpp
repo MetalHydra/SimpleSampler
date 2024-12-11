@@ -26,8 +26,17 @@ UIComponents::~UIComponents()
 
 void UIComponents::paint(juce::Graphics& g)
 {
-    //DBG("keyboard position: " + std::to_string(keyboardComponent.getX()) + ", " + std::to_string(keyboardComponent.getY()));
-    juce::ColourGradient gradient (juce::Colours::blueviolet, 200.0f, 0.0f,  juce::Colours::black, 0.0f, 600.0f, true);
+    DBG("keyboard position: " + std::to_string(keyboardComponent.getX()) + ", " + std::to_string(keyboardComponent.getY()));
+
+    auto rectange = keyboardComponent.getRectangleForKey(36);
+    //DBG("rectangle: " + std::to_string(rectange.getX()) + ", " + std::to_string(rectange.getY()));
+    // add keyboard y postion to rectangle
+    //rectange.setY( keyboardComponent.getY());
+    //rectange.setX(rectange.getX() + keyboardComponent.getX());
+    //keyboardComponent.drawWhiteNote(40, g, rectange, false, true, juce::Colours::black, juce::Colours::yellow);
+    //g.setColour(juce::Colours::yellow);
+    //juce::Rectangle<int> test(keyboardComponent.getX()+rectange.getX(), keyboardComponent.getY(), rectange.getWidth(), rectange.getHeight());
+    juce::ColourGradient gradient (juce::Colours::blueviolet, getWidth()/2.0f, 0.0f,  juce::Colours::darkslategrey, 0.0f, 0.0f, true);
     g.setGradientFill(gradient);
     g.setOpacity(0.8f);
     g.fillAll();
@@ -35,6 +44,6 @@ void UIComponents::paint(juce::Graphics& g)
 
 void UIComponents::resized()
 {
-    keyboardComponent.setBoundsRelative(0.0f, 0.75f, 1.0f, 0.25);
     tabbedComponent.setBoundsRelative(0.0f, 0.0f, 1.0f, 0.75f);
+    keyboardComponent.setBoundsRelative(0.1f, 0.75f, 0.9f, 0.25);
 }

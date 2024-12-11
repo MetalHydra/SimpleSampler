@@ -34,6 +34,7 @@ struct filterCoefficients
     float b2 = 0.0f;
     float c0 = 1.0f;
     float d0 = 0.0f;
+    int order = 1;
 };
 
 class BiQuadFilter
@@ -46,7 +47,6 @@ public:
     void ProcessBlock(juce::AudioBuffer<float>& buffer);
     virtual void calculateCoefficients(FilterType filter);
     void reset();
-
 private:
     filterCoefficients coefficients;
     FilterParameters parameters;

@@ -21,7 +21,7 @@ class EQ : public juce::Component {
         FilterComponent filterBand4 = FilterComponent(audioProcessor, "Band4");
         FilterComponent filterBand5 = FilterComponent(audioProcessor, "Band5");
             //, filterBand2, filterBand3, filterBand4, filterBand5, filterBand6;
-        std::vector<float> centerFrequncies = { 50, 100, 500, 1000, 5000, 10000 };
+        std::vector<float> centerFrequncies = { 50, 100, 500, 1000, 5000 };
         juce::FlexBox eqBox;
 };
 
