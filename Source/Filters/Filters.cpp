@@ -50,18 +50,7 @@ void BiQuadFilter::calculateCoefficients(FilterType filter) {
         }
         case LOWPASS2ndOrder:
         {
-            float theta = 2.0f * juce::MathConstants<float>::pi * parameters.fc / parameters.samplerate;
-            float d = 1.0f / parameters.Q;
-            float num = 1.0f - (d/2.0f) * std::sin(theta);
-            float denum = 1.0f + (d/2.0f) * std::sin(theta);
-            float beta = 0.5f * (num / denum);
-            float gamma = (0.5f + beta) * std::cos(theta);
-            coefficients.a0 = (0.5f + beta - gamma) / 2.0f;
-            coefficients.a1 = 0.5f + beta - gamma;
-            coefficients.a2 = coefficients.a0;
-            coefficients.b1 = -2.0f *gamma;
-            coefficients.b2 = 2.0f * beta;
-            coefficients.order = 2;
+
             break;
         }
         case HIGHPASS2ndOrder:
