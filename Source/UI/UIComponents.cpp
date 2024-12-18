@@ -28,14 +28,14 @@ void UIComponents::paint(juce::Graphics& g)
 {
     DBG("keyboard position: " + std::to_string(keyboardComponent.getX()) + ", " + std::to_string(keyboardComponent.getY()));
 
-    auto rectange = keyboardComponent.getRectangleForKey(36);
-    //DBG("rectangle: " + std::to_string(rectange.getX()) + ", " + std::to_string(rectange.getY()));
-    // add keyboard y postion to rectangle
-    //rectange.setY( keyboardComponent.getY());
-    //rectange.setX(rectange.getX() + keyboardComponent.getX());
-    //keyboardComponent.drawWhiteNote(40, g, rectange, false, true, juce::Colours::black, juce::Colours::yellow);
+    auto rectangle = keyboardComponent.getRectangleForKey(36);
+    //DBG("rectangle: " + std::to_string(rectangle.getX()) + ", " + std::to_string(rectangle.getY()));
+    // add keyboard y position to rectangle
+    //rectangle.setY( keyboardComponent.getY());
+    //rectangle.setX(rectangle.getX() + keyboardComponent.getX());
+    //keyboardComponent.drawWhiteNote(40, g, rectangle, false, true, juce::Colours::black, juce::Colours::yellow);
     //g.setColour(juce::Colours::yellow);
-    //juce::Rectangle<int> test(keyboardComponent.getX()+rectange.getX(), keyboardComponent.getY(), rectange.getWidth(), rectange.getHeight());
+    //juce::Rectangle<int> test(keyboardComponent.getX()+rectangle.getX(), keyboardComponent.getY(), rectangle.getWidth(), rectangle.getHeight());
     juce::ColourGradient gradient (juce::Colours::blueviolet, getWidth()/2.0f, 0.0f,  juce::Colours::darkslategrey, 0.0f, 0.0f, true);
     g.setGradientFill(gradient);
     g.setOpacity(0.8f);
